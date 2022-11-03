@@ -5,92 +5,12 @@
 #include "board.h"
 #include "search.h"
 
-void _test()
-{
-	board _board;
-
-	for (int i = 0; i < BRD_LEN + 2; i++)
-	{
-		for (int j = 0; j < BRD_LEN + 2; j++)
-		{
-			int idx = coordToIdx(std::make_pair(i, j));
-			if (outOfBounds(idx))
-				std::cout << "X";
-			else
-				std::cout << "O";
-		}
-
-		std::cout << std::endl;
-	}
-
-
-	//int idx = coordToIdx(std::make_pair(5, 5));
-	/*
-	for (int i = 0; i < 8; i++)
-	{
-		_board.makeMove(idx + IDX_CHANGE_DIR[i]);
-		_board.makeMove(idx + IDX_CHANGE_DIR[i] * 2);
-	}
-
-	_board.makeMove(coordToIdx(std::make_pair(15, 15)));
-	_board.makeMove(coordToIdx(std::make_pair(1, 1)));
-	_board.makeMove(coordToIdx(std::make_pair(16, 14)));
-	_board.makeMove(coordToIdx(std::make_pair(2, 2)));
-	_board.makeMove(coordToIdx(std::make_pair(17, 13)));
-	_board.makeMove(coordToIdx(std::make_pair(1, 2)));
-	_board.makeMove(coordToIdx(std::make_pair(18, 12)));
-	_board.makeMove(coordToIdx(std::make_pair(2, 1)));
-	_board.makeMove(coordToIdx(std::make_pair(20, 10)));
-	_board.makeMove(coordToIdx(std::make_pair(2, 3)));
-	_board.makeMove(coordToIdx(std::make_pair(19, 11)));
-	_board.clear();
-	_board.printBoard();*/
-
-	while (true)
-	{
-		int y, x;
-
-		std::cin >> y >> x;
-
-		if (y < 0 || x < 0)
-		{
-			_board.undoMove();
-			_board.printBoard(true);
-			std::cout << "EVALUATION: " << evaluate(_board) << std::endl;
-			continue;
-		}
-
-		_board.makeMove(coordToIdx(std::make_pair(y, x)));
-		_board.printBoard(true);
-		std::cout << "EVALUATION: " << evaluate(_board) << std::endl;
-	}
-}
-
-void testDepth(int limit)
-{
-	board b;
-
-	for (int depth = 2; depth < limit; depth++)
-	{
-		int lastMove = coordToIdx(std::make_pair((BRD_LEN + 1) / 2, (BRD_LEN + 1) / 2));
-		SearchInfo info;
-
-		info.nodes = 0;
-		info.lastMove = lastMove;
-
-		int eval = alphaBetaRoot(depth, b, info, BLACK).second;
-		std::cout << "depth: " << depth << ", nodes: " << info.nodes << ", eval: " << eval << std::endl << std::endl;
-	}
-}
-
 int main(void)
 {
 	board b;
 	int playerColor, engineColor, ply = 0;
 	bool playerTurn = false;
 	int lastMove = coordToIdx(std::make_pair((BRD_LEN + 1) / 2, (BRD_LEN + 1) / 2));
-
-	//testDepth(10);
 
 	do
 	{
