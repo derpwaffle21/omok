@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\omok-AI\omok\windows_build\CMakeFiles\202bb5f4a187a976ff9a634bffaea50c\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{90E26937-8C17-3CBB-A037-922E38BE1F84}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

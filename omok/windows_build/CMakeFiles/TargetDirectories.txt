@@ -1,0 +1,3 @@
+D:/omok-AI/omok/windows_build/CMakeFiles/omokAI.dir
+D:/omok-AI/omok/windows_build/CMakeFiles/ALL_BUILD.dir
+D:/omok-AI/omok/windows_build/CMakeFiles/ZERO_CHECK.dir
