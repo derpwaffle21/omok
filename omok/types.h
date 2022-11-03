@@ -2,7 +2,7 @@
 
 #define INF 987654321
 
-constexpr int BRD_LEN = 10;
+constexpr int BRD_LEN = 9;
 constexpr int BRD_SQ_NUM = (BRD_LEN + 2) * (BRD_LEN + 2);
 constexpr int MAX_GAME_LEN = BRD_LEN * BRD_LEN;
 constexpr int MAX_EVAL = BRD_LEN * BRD_LEN * BRD_LEN * BRD_LEN * BRD_LEN;	// BRD_LEN ^ 5
