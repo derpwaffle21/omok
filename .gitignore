@@ -1,0 +1,16 @@
+
+*.vsidx
+*.lock
+.vs/omok-AI/v17/.suo
+*.db
+*.db-shm
+*.db-wal
+*.opendb
+*.ipch
+*.sln
+*.vcxproj
+*.filters
+*.user
+
+.vs/
+x64/

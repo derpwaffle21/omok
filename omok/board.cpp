@@ -33,11 +33,17 @@ void board::printBoard(bool printInfo)
 
 		std::cout << "eval: " << eval << std::endl;
 	}
+
+	for (int idx = 0; idx <= BRD_LEN; idx++)
+		std::cout << idx % 10;
 	
-	for (int idx = BRD_LEN; idx < BRD_SQ_NUM; idx++)
+	for (int idx = BRD_LEN; idx < BRD_SQ_NUM - BRD_LEN - 2; idx++)
 	{
 		if (idx % (BRD_LEN + 2) == 0)
+		{
 			std::cout << std::endl;
+			std::cout << (idx / (BRD_LEN + 2)) % 10;
+		}
 
 		if (outOfBounds(idx))
 			continue;
@@ -49,6 +55,8 @@ void board::printBoard(bool printInfo)
 		else
 			std::cout << '.';
 	}
+
+	std::cout << std::endl;
 }
 
 void board::makeMove(int idx)
