@@ -3,7 +3,7 @@
 #include "types.h"
 #include "board.h"
 
-int evaluate(board& _board)
+int evaluate(Board& _board)
 {
 	int eval;
 

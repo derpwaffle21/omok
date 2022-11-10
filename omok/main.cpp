@@ -7,7 +7,9 @@
 
 int main(void)
 {
-	board b;
+	int depth = 5;
+
+	Board b;
 	int playerColor, engineColor, ply = 0;
 	bool playerTurn = false;
 	int lastMove = coordToIdx(std::make_pair((BRD_LEN + 1) / 2, (BRD_LEN + 1) / 2));
@@ -77,7 +79,6 @@ int main(void)
 			SearchInfo info;
 			info.nodes = 0;
 			info.lastMove = lastMove;
-			int depth = 4;
 
 			std::pair<int, int> searchResult = alphaBetaRoot(depth, b, info, engineColor);
 			int bestMove = searchResult.first;

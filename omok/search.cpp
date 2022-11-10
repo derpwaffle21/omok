@@ -3,36 +3,20 @@
 
 #include "search.h"
 
-std::vector<int> generateMoveSet(board& _board, int color)
+std::vector<int> generateMoveSet(Board& _board, int color)
 {
-	std::vector<std::pair<int, int>> scoreMove;	// score, move
+	std::vector<int> moves;
 
 	for (int idx = 0; idx < BRD_SQ_NUM; idx++)
 	{
 		if (!outOfBounds(idx) && _board.getBoardElement(idx) == EMPTY)
-		{
-			_board.makeMove(idx);
-
-			if (color == BLACK)
-				scoreMove.push_back(std::make_pair(-evaluate(_board), idx));	// sort->오름차순이므로
-			else
-				scoreMove.push_back(std::make_pair(evaluate(_board), idx));
-
-			_board.undoMove();
-		}
+			moves.push_back(idx);
 	}
 
-	std::sort(scoreMove.begin(), scoreMove.end());
-
-	std::vector<int> ms;
-
-	for (std::pair<int, int>& p : scoreMove)
-		ms.push_back(p.second);
-
-	return ms;
+	return moves;
 }
 
-std::pair<int, int> alphaBetaRoot(int depth, board& _board, SearchInfo& info, int color)
+std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, int color)
 {
 	ASSERT(_board.state == BoardState::UNF);
 	int bestMove = -1;
@@ -72,7 +56,7 @@ std::pair<int, int> alphaBetaRoot(int depth, board& _board, SearchInfo& info, in
 	return std::make_pair(bestMove, alpha);
 }
 
-int alphaBeta(int alpha, int beta, int depthleft, board& _board, SearchInfo& info, int color)
+int alphaBeta(int alpha, int beta, int depthleft, Board& _board, SearchInfo& info, int color)
 {
 	if (depthleft == 0 || _board.state != BoardState::UNF)
 	{

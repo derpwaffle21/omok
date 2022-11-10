@@ -4,4 +4,4 @@
 
 constexpr int TEMPO = 10;
 
-int evaluate(board& _board);
+int evaluate(Board& _board);
