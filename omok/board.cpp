@@ -2,12 +2,12 @@
 #include "board.h"
 #include "util.h"
 
-int board::turn()
+int Board::turn()
 {
 	return ply % 2; // BLACK = 0, WHITE = 1
 }
 
-void board::printBoard(bool printInfo)
+void Board::printBoard(bool printInfo)
 {
 	if (printInfo)
 	{
@@ -59,7 +59,7 @@ void board::printBoard(bool printInfo)
 	std::cout << std::endl;
 }
 
-void board::makeMove(int idx)
+void Board::makeMove(int idx)
 {
 	ASSERT(!outOfBounds(idx));
 	ASSERT(state == BoardState::UNF);
@@ -92,7 +92,7 @@ void board::makeMove(int idx)
 }
 
 // return 0 if the side won, else return the eval change
-std::pair<bool, int> board::checkMove(int idx)
+std::pair<bool, int> Board::checkMove(int idx)
 {
 	ASSERT(getBoardElement(idx) != EMPTY);
 
@@ -121,7 +121,7 @@ std::pair<bool, int> board::checkMove(int idx)
 		return std::make_pair(false, evalChange);
 }
 
-int board::countContinous(int idx, int dir)
+int Board::countContinous(int idx, int dir)
 {
 	int side = getBoardElement(idx);
 	int cnt;
@@ -137,7 +137,7 @@ int board::countContinous(int idx, int dir)
 	return cnt - 1;	// if cnt = 1, that means there is 0 continous stones in that direction
 }
 
-void board::undoMove()
+void Board::undoMove()
 {
 	ASSERT(ply != 0);
 	ASSERT(bb[WHITE].test(hist.back()) || bb[BLACK].test(hist.back()));
@@ -163,7 +163,7 @@ void board::undoMove()
 	ply--;
 }
 
-void board::clear()
+void Board::clear()
 {
 	while (ply != 0)
 		undoMove();
@@ -171,7 +171,7 @@ void board::clear()
 	ASSERT(eval == 0);
 }
 
-int board::getBoardElement(int idx)
+int Board::getBoardElement(int idx)
 {
 	if (bb[WHITE].test(idx))
 		return WHITE;

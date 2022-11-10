@@ -40,7 +40,7 @@ bool outOfBounds(int idx)
 void generateRandomGames(int gameNum, bool printBoard)
 {
     std::vector<int> availableMoves;
-    board _board;
+    Board _board;
 
     for (int idx = 0; idx < BRD_SQ_NUM; idx++)
     {
