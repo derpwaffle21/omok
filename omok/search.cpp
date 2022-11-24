@@ -3,14 +3,33 @@
 
 #include "search.h"
 
+// when BRD_LEN % 2 == 1
 std::vector<int> generateMoveSet(Board& _board, int color)
 {
 	std::vector<int> moves;
+	std::pair<int, int> center = std::make_pair(ceil((float)BRD_LEN / 2), ceil((float)BRD_LEN / 2));
 
-	for (int idx = 0; idx < BRD_SQ_NUM; idx++)
+	for (int distToCenter = 0; distToCenter <= BRD_LEN - 1; distToCenter++)
 	{
-		if (!outOfBounds(idx) && _board.getBoardElement(idx) == EMPTY)
-			moves.push_back(idx);
+		for (int yOffset = 0; yOffset <= distToCenter; yOffset++)
+		{
+			int xOffset = distToCenter - yOffset;
+
+			if (center.first + yOffset > BRD_LEN || center.second + xOffset > BRD_LEN)
+				continue;
+
+			if (_board.getBoardElement(coordToIdx(std::make_pair(center.first + yOffset, center.second + xOffset))) == EMPTY)
+				moves.push_back(coordToIdx(std::make_pair(center.first + yOffset, center.second + xOffset)));
+
+			if (_board.getBoardElement(coordToIdx(std::make_pair(center.first + yOffset, center.second - xOffset))) == EMPTY)
+				moves.push_back(coordToIdx(std::make_pair(center.first + yOffset, center.second - xOffset)));
+
+			if (_board.getBoardElement(coordToIdx(std::make_pair(center.first - yOffset, center.second + xOffset))) == EMPTY)
+				moves.push_back(coordToIdx(std::make_pair(center.first - yOffset, center.second + xOffset)));
+
+			if (_board.getBoardElement(coordToIdx(std::make_pair(center.first - yOffset, center.second - xOffset))) == EMPTY)
+				moves.push_back(coordToIdx(std::make_pair(center.first - yOffset, center.second - xOffset)));
+		}
 	}
 
 	return moves;
@@ -36,10 +55,11 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, in
 		info.lastMove = idx;
 
 		int score;
+
 		if (color == BLACK)
-			score = -alphaBeta(-beta, -alpha, depth - 1, _board, info, WHITE);
+			score = -alphaBeta(-beta, -alpha, depth, _board, info, WHITE, 1);
 		else
-			score = -alphaBeta(-beta, -alpha, depth - 1, _board, info, BLACK);
+			score = -alphaBeta(-beta, -alpha, depth, _board, info, BLACK, 1);
 
 		_board.undoMove();
 
@@ -56,9 +76,9 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, in
 	return std::make_pair(bestMove, alpha);
 }
 
-int alphaBeta(int alpha, int beta, int depthleft, Board& _board, SearchInfo& info, int color)
+int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& info, int color, int depth)
 {
-	if (depthleft == 0 || _board.state != BoardState::UNF)
+	if (searchDepth == depth || _board.state != BoardState::UNF)
 	{
 		if (color == BLACK)
 			return evaluate(_board);
@@ -80,9 +100,9 @@ int alphaBeta(int alpha, int beta, int depthleft, Board& _board, SearchInfo& inf
 
 		int score;
 		if (color == BLACK)
-			score = -alphaBeta(-beta, -alpha, depthleft - 1, _board, info, WHITE);
+			score = -alphaBeta(-beta, -alpha, searchDepth, _board, info, WHITE, depth + 1);
 		else
-			score = -alphaBeta(-beta, -alpha, depthleft - 1, _board, info, BLACK);
+			score = -alphaBeta(-beta, -alpha, searchDepth, _board, info, BLACK, depth + 1);
 
 		_board.undoMove();
 
