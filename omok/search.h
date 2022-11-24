@@ -13,4 +13,4 @@ public:
 
 std::vector<int> generateMoveSet(Board& _board, int color);
 std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, int color);
-int alphaBeta(int alpha, int beta, int depthleft, Board& _board, SearchInfo& info, int color);
+int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& info, int color, int depth);
