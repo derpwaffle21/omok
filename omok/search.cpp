@@ -35,7 +35,7 @@ std::vector<int> generateMoveSet(Board& _board, int color)
 	return moves;
 }
 
-std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, int color)
+std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, int color, int temp)
 {
 	ASSERT(_board.state == BoardState::UNF);
 	int bestMove = -1;
@@ -57,9 +57,9 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, in
 		int score;
 
 		if (color == BLACK)
-			score = -alphaBeta(-beta, -alpha, depth, _board, info, WHITE, 1);
+			score = -alphaBeta(-beta, -alpha, depth, _board, info, WHITE, 1, temp);
 		else
-			score = -alphaBeta(-beta, -alpha, depth, _board, info, BLACK, 1);
+			score = -alphaBeta(-beta, -alpha, depth, _board, info, BLACK, 1, temp);
 
 		_board.undoMove();
 
@@ -76,14 +76,16 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, in
 	return std::make_pair(bestMove, alpha);
 }
 
-int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& info, int color, int depth)
+int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& info, int color, int depth, int temp)
 {
 	if (searchDepth == depth || _board.state != BoardState::UNF)
 	{
+		int change = (rand() % (temp * 2 + 1)) - temp;
+
 		if (color == BLACK)
-			return evaluate(_board);
+			return evaluate(_board) + change;
 		else
-			return -evaluate(_board);
+			return -evaluate(_board) + change;
 	}
 
 	std::vector<int> moveSet = generateMoveSet(_board, color);
