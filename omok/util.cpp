@@ -37,10 +37,29 @@ bool outOfBounds(int idx)
     return false;
 }
 
-void generateRandomGames(int gameNum, bool printBoard)
+void saveGameToFile(Board& board, std::string fileName)
+{
+    std::ofstream fout;
+    std::vector<int>& hist = board.getHist();
+
+    fout.open(fileName, std::ios::app);
+
+    fout << "start" << std::endl;
+
+    for (auto& move : hist)
+    {
+        std::pair<int, int> coord = idxToCoord(move);
+
+        fout << "move " << std::to_string(coord.first) << " " << std::to_string(coord.second) << std::endl;
+    }
+
+    fout << "end " << std::to_string((int)board.state) << std::endl;
+    fout.close();
+}
+
+void generateRandomGame(Board& board, bool printBoard)
 {
     std::vector<int> availableMoves;
-    Board _board;
 
     for (int idx = 0; idx < BRD_SQ_NUM; idx++)
     {
@@ -48,26 +67,21 @@ void generateRandomGames(int gameNum, bool printBoard)
             availableMoves.push_back(idx);
     }
 
-    while (gameNum--)
+    std::shuffle(availableMoves.begin(), availableMoves.end(), rng);
+
+    for (auto& idx : availableMoves)
     {
-        std::shuffle(availableMoves.begin(), availableMoves.end(), rng);
+        board.makeMove(idx);
 
-        for (auto& idx : availableMoves)
+        if (board.state != BoardState::UNF)
         {
-            _board.makeMove(idx);
-
-            if (_board.state != BoardState::UNF)
-            {
-                if (printBoard)
-                    _board.printBoard(true);
-
-                break;
-            }
-
             if (printBoard)
-                _board.printBoard(true);
+                board.printBoard(true);
+
+            break;
         }
 
-        _board.clear();
+        if (printBoard)
+            board.printBoard(true);
     }
 }
