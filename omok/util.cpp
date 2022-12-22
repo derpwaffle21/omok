@@ -57,6 +57,29 @@ void saveGameToFile(Board& board, std::string fileName)
     fout.close();
 }
 
+void saveGameToFile(const std::string& gameString, std::string fileName)
+{
+    std::ofstream fout(fileName);
+
+    fout << gameString;
+    fout.close();
+}
+
+void gameToString(Board& board, std::string& str)
+{
+    str += "start\n";
+    std::vector<int>& hist = board.getHist();
+
+    for (auto& move : hist)
+    {
+        std::pair<int, int> coord = idxToCoord(move);
+
+        str += ("move " + std::to_string(coord.first) + " " + std::to_string(coord.second) + "\n");
+    }
+
+    str += ("end " + std::to_string((int)board.state) + "\n");
+}
+
 void generateRandomGame(Board& board, bool printBoard)
 {
     std::vector<int> availableMoves;
