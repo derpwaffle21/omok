@@ -108,15 +108,18 @@ void playGame(int depth)
 int main(void)
 {
 	Board b;
+	std::string str;
 
-	for (int i = 0; i < 50000; i++)
+	for (int i = 0; i < 30000; i++)
 	{
 		if (i % 1000 == 0)
 			std::cout << "game: " << i << std::endl;
 
 		generateRandomGame(b);
-		saveGameToFile(b, "random_50000.txt");
+		gameToString(b, str);
 	}
+
+	saveGameToFile(str, "random_30000.txt");
 
 	return 0;
 }
