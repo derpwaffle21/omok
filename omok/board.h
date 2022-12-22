@@ -10,7 +10,7 @@ class Board
 private:
 	std::bitset<BRD_SQ_NUM> bb[2];
 	int ply = 0;
-	std::vector<int> hist = std::vector<int>(BRD_SQ_NUM);
+	std::vector<int> hist = std::vector<int>();
 
 	std::pair<bool, int> checkMove(int idx);
 	int countContinous(int idx, int dir);
@@ -25,4 +25,5 @@ public:
 	void clear();
 	int getBoardElement(int idx);
 	int turn();
+	std::vector<int>& getHist();
 };

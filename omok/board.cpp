@@ -180,3 +180,8 @@ int Board::getBoardElement(int idx)
 	else
 		return EMPTY;
 }
+
+std::vector<int>& Board::getHist()
+{
+	return this->hist;
+}

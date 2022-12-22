@@ -5,10 +5,8 @@
 #include "board.h"
 #include "search.h"
 
-int main(void)
+void playGame(int depth)
 {
-	int depth = 5;
-
 	Board b;
 	int playerColor, engineColor, ply = 0;
 	bool playerTurn = false;
@@ -101,10 +99,24 @@ int main(void)
 	if (b.state == BoardState::DRAW)
 		std::cout << "it's a draw!" << std::endl;
 	else if ((b.state == BoardState::B_WIN && playerColor == BLACK) ||
-			 (b.state == BoardState::W_WIN && playerColor == WHITE))
+		(b.state == BoardState::W_WIN && playerColor == WHITE))
 		std::cout << "you win!" << std::endl;
 	else
 		std::cout << "you lose!" << std::endl;
+}
+
+int main(void)
+{
+	Board b;
+
+	for (int i = 0; i < 50000; i++)
+	{
+		if (i % 1000 == 0)
+			std::cout << "game: " << i << std::endl;
+
+		generateRandomGame(b);
+		saveGameToFile(b, "random_50000.txt");
+	}
 
 	return 0;
 }
