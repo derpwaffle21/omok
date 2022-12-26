@@ -12,18 +12,18 @@ private:
 	int ply = 0;
 	std::vector<int> hist = std::vector<int>();
 
-	std::pair<bool, int> checkMove(int idx);
-	int countContinous(int idx, int dir);
+	std::pair<bool, int> checkMove(int idx) const;
+	int countContinous(int idx, int dir) const;
 
 public:
 	BoardState state = BoardState::UNF;
 	int eval = 0;
 
-	void printBoard(bool printInfo);
+	void printBoard(bool printInfo) const;
 	void makeMove(int idx);
 	void undoMove();
 	void clear();
-	int getBoardElement(int idx);
-	int turn();
-	std::vector<int>& getHist();
+	int getBoardElement(int idx) const;
+	int getTurn() const;
+	const std::vector<int>& getHist() const;
 };
