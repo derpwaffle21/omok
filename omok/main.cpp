@@ -107,6 +107,7 @@ void playGame(int depth)
 
 int main(void)
 {
+	/*
 	Board b;
 	std::string str;
 
@@ -119,7 +120,9 @@ int main(void)
 		gameToString(b, str);
 	}
 
-	saveGameToFile(str, "random_30000.txt");
+	saveGameToFile(str, "random_30000.txt");*/
+
+	playGame(5);
 
 	return 0;
 }

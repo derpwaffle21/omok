@@ -11,6 +11,6 @@ public:
 	int lastMove = coordToIdx(std::make_pair((BRD_LEN - 1) / 2, (BRD_LEN - 1) / 2));
 };
 
-std::vector<int> generateMoveSet(Board& _board, int color);
+std::vector<int> generateMoveSet(const Board& _board, int color);
 std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, int color, int temp = 0);
 int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& info, int color, int depth, int temp = 0);

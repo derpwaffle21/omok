@@ -4,7 +4,7 @@
 #include "search.h"
 
 // when BRD_LEN % 2 == 1
-std::vector<int> generateMoveSet(Board& _board, int color)
+std::vector<int> generateMoveSet(const Board& _board, int color)
 {
 	std::vector<int> moves;
 	std::pair<int, int> center = std::make_pair(ceil((float)BRD_LEN / 2), ceil((float)BRD_LEN / 2));

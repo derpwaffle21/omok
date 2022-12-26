@@ -37,10 +37,10 @@ bool outOfBounds(int idx)
     return false;
 }
 
-void saveGameToFile(Board& board, std::string fileName)
+void saveGameToFile(const Board& board, std::string fileName)
 {
     std::ofstream fout;
-    std::vector<int>& hist = board.getHist();
+    const std::vector<int>& hist = board.getHist();
 
     fout.open(fileName, std::ios::app);
 
@@ -65,10 +65,10 @@ void saveGameToFile(const std::string& gameString, std::string fileName)
     fout.close();
 }
 
-void gameToString(Board& board, std::string& str)
+void gameToString(const Board& board, std::string& str)
 {
     str += "start\n";
-    std::vector<int>& hist = board.getHist();
+    const std::vector<int>& hist = board.getHist();
 
     for (auto& move : hist)
     {

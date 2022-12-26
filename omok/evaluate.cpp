@@ -18,7 +18,7 @@ int evaluate(Board& _board)
 		eval = _board.eval;
 
 		// tempo for the side to move
-		if (_board.turn() == BLACK)
+		if (_board.getTurn() == BLACK)
 			eval += TEMPO;
 		else
 			eval -= TEMPO;

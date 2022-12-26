@@ -2,12 +2,12 @@
 #include "board.h"
 #include "util.h"
 
-int Board::turn()
+int Board::getTurn() const
 {
 	return ply % 2; // BLACK = 0, WHITE = 1
 }
 
-void Board::printBoard(bool printInfo)
+void Board::printBoard(bool printInfo) const
 {
 	if (printInfo)
 	{
@@ -15,7 +15,7 @@ void Board::printBoard(bool printInfo)
 		std::cout << "ply: " << ply << std::endl;
 		std::cout << "side to move: ";
 
-		if (turn() == BLACK)
+		if (getTurn() == BLACK)
 			std::cout << "black" << std::endl;
 		else
 			std::cout << "white" << std::endl;
@@ -65,7 +65,7 @@ void Board::makeMove(int idx)
 	ASSERT(state == BoardState::UNF);
 	ASSERT(!bb[BLACK].test(idx) && !bb[WHITE].test(idx));
 
-	bb[turn()].set(idx);
+	bb[getTurn()].set(idx);
 
 	std::pair<bool, int> chkMove = checkMove(idx);
 	bool gamestateChanged = chkMove.first;
@@ -73,13 +73,13 @@ void Board::makeMove(int idx)
 
 	if (gamestateChanged)
 	{
-		if (turn() == BLACK)	//side that moved won the game
+		if (getTurn() == BLACK)	//side that moved won the game
 			state = BoardState::B_WIN;
 		else
 			state = BoardState::W_WIN;
 	}
 
-	if (turn() == BLACK)
+	if (getTurn() == BLACK)
 		eval += evalChange;
 	else
 		eval -= evalChange;
@@ -92,7 +92,7 @@ void Board::makeMove(int idx)
 }
 
 // return 0 if the side won, else return the eval change
-std::pair<bool, int> Board::checkMove(int idx)
+std::pair<bool, int> Board::checkMove(int idx) const
 {
 	ASSERT(getBoardElement(idx) != EMPTY);
 
@@ -121,7 +121,7 @@ std::pair<bool, int> Board::checkMove(int idx)
 		return std::make_pair(false, evalChange);
 }
 
-int Board::countContinous(int idx, int dir)
+int Board::countContinous(int idx, int dir) const
 {
 	int side = getBoardElement(idx);
 	int cnt;
@@ -147,13 +147,13 @@ void Board::undoMove()
 
 	// since the eval is in black's perspective, and evalChange is always > 0
 	// turn == BLACK -> white played the last move
-	if (turn() == BLACK)
+	if (getTurn() == BLACK)
 		eval += evalChange;
 	else
 		eval -= evalChange;
 
 	// we need to set the bit AFTER we undo our eval
-	if (turn() == BLACK)	//black to move -> white played the last move
+	if (getTurn() == BLACK)	//black to move -> white played the last move
 		bb[WHITE].reset(hist.back());
 	else
 		bb[BLACK].reset(hist.back());
@@ -171,7 +171,7 @@ void Board::clear()
 	ASSERT(eval == 0);
 }
 
-int Board::getBoardElement(int idx)
+int Board::getBoardElement(int idx) const
 {
 	if (bb[WHITE].test(idx))
 		return WHITE;
@@ -181,7 +181,7 @@ int Board::getBoardElement(int idx)
 		return EMPTY;
 }
 
-std::vector<int>& Board::getHist()
+const std::vector<int>& Board::getHist() const
 {
 	return this->hist;
 }
