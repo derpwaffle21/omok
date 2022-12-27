@@ -55,7 +55,6 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, in
 		info.lastMove = idx;
 
 		int score;
-
 		if (color == BLACK)
 			score = -alphaBeta(-beta, -alpha, depth, _board, info, WHITE, 1, temp);
 		else

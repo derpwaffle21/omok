@@ -185,3 +185,28 @@ const std::vector<int>& Board::getHist() const
 {
 	return this->hist;
 }
+
+Board::operator std::string() const
+{
+	std::string str;
+
+	str = "start\n";
+
+	for (int i = 0; i < hist.size(); i++)
+	{
+		std::pair<int, int> coord = idxToCoord(hist[i]);
+
+		if (i % 2 == 0)
+			str += "b ";
+		else
+			str += "w ";
+
+		str += (std::to_string(coord.first) + " " + std::to_string(coord.second) + "\n");
+
+		//str += ("move " + std::to_string(coord.first) + " " + std::to_string(coord.second) + "\n");
+	}
+
+	str += ("end " + std::to_string((int)state) + "\n");
+
+	return str;
+}
