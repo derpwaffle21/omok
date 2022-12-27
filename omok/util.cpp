@@ -38,46 +38,16 @@ bool outOfBounds(int idx)
 }
 
 void saveGameToFile(const Board& board, std::string fileName)
-{
-    std::ofstream fout;
-    const std::vector<int>& hist = board.getHist();
 
-    fout.open(fileName, std::ios::app);
-
-    fout << "start" << std::endl;
-
-    for (auto& move : hist)
-    {
-        std::pair<int, int> coord = idxToCoord(move);
-
-        fout << "move " << std::to_string(coord.first) << " " << std::to_string(coord.second) << std::endl;
-    }
-
-    fout << "end " << std::to_string((int)board.state) << std::endl;
-    fout.close();
+    saveStringToFile(std::string(board), fileName);
 }
 
-void saveGameToFile(const std::string& gameString, std::string fileName)
+void saveStringToFile(const std::string& gameString, std::string fileName)
 {
     std::ofstream fout(fileName);
 
     fout << gameString;
     fout.close();
-}
-
-void gameToString(const Board& board, std::string& str)
-{
-    str += "start\n";
-    const std::vector<int>& hist = board.getHist();
-
-    for (auto& move : hist)
-    {
-        std::pair<int, int> coord = idxToCoord(move);
-
-        str += ("move " + std::to_string(coord.first) + " " + std::to_string(coord.second) + "\n");
-    }
-
-    str += ("end " + std::to_string((int)board.state) + "\n");
 }
 
 void generateRandomGame(Board& board, bool printBoard)

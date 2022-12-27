@@ -23,7 +23,10 @@ public:
 	void makeMove(int idx);
 	void undoMove();
 	void clear();
+
 	int getBoardElement(int idx) const;
 	int getTurn() const;
 	const std::vector<int>& getHist() const;
+
+	operator std::string() const;
 };

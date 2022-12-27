@@ -27,6 +27,5 @@ std::pair<int, int> idxToCoord(int idx);
 int coordToIdx(std::pair<int, int> coord);	// y, x
 bool outOfBounds(int idx);
 void saveGameToFile(const Board& board, std::string fileName);
-void saveGameToFile(const std::string& gameString, std::string fileName);
-void gameToString(const Board& board, std::string& str);
+void saveStringToFile(const std::string& gameString, std::string fileName);
 void generateRandomGame(Board& board, bool printBoard = false);

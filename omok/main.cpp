@@ -4,6 +4,7 @@
 #include "util.h"
 #include "board.h"
 #include "search.h"
+#include "network.h"
 
 void playGame(int depth)
 {
@@ -111,18 +112,19 @@ int main(void)
 	Board b;
 	std::string str;
 
-	for (int i = 0; i < 30000; i++)
+	for (int i = 0; i < 500000; i++)
 	{
-		if (i % 1000 == 0)
+		if (i % 5000 == 0)
 			std::cout << "game: " << i << std::endl;
 
+		b.clear();
 		generateRandomGame(b);
-		gameToString(b, str);
-	}
+		str += std::string(b);
+	}*/
 
-	saveGameToFile(str, "random_30000.txt");*/
+	//Network nn(6, 2);
 
-	playGame(5);
+	//nn.saveToFile("nn.txt");
 
 	return 0;
 }
