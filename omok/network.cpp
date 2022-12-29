@@ -8,6 +8,9 @@ double ReLU(double x)
 
 	return x;
 }
+double Sigmoid(double x) {
+	return 1 / (1 + exp(-x));
+}
 
 Convolutional::Convolutional(int _size) : size(_size)
 {
@@ -99,7 +102,7 @@ void Network::saveToFile(std::string fileName)
 
 double Network::evaluate(const std::vector<std::vector<int>>& board, int moveNum)
 {
-	//todo
+	//TODO
 
 	return 0;
 }

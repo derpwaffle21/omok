@@ -3,6 +3,7 @@
 #include "board.h"
 
 double ReLU(double x);
+double Sigmoid(double x);
 
 class Convolutional
 {
