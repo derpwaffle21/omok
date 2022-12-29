@@ -38,7 +38,7 @@ bool outOfBounds(int idx)
 }
 
 void saveGameToFile(const Board& board, std::string fileName)
-
+{
     saveStringToFile(std::string(board), fileName);
 }
 
