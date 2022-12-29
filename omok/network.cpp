@@ -1,21 +1,10 @@
 #include "network.h"
 #include "util.h"
 
-double ReLU(double x)
-{
-	if (x < 0)
-		return 0;
-
-	return x;
-}
-double Sigmoid(double x) {
-	return 1 / (1 + exp(-x));
-}
-
 Convolutional::Convolutional(int _size) : size(_size)
 {
 	weight = std::vector<std::vector<double>>(size, std::vector<double>(size));
-	bias = std::vector<std::vector<double>>(size, std::vector<double>(size));
+	bias   = std::vector<std::vector<double>>(size, std::vector<double>(size));
 }
 
 Dense::Dense()
@@ -27,50 +16,50 @@ Dense::Dense()
 Dense::Dense(int input, int output) : inputSize(input), outputSize(output)
 {
 	weight = std::vector<std::vector<double>>(inputSize, std::vector<double>(outputSize));
-	bias = std::vector<std::vector<double>>(inputSize, std::vector<double>(outputSize));
+	bias   = std::vector<std::vector<double>>(inputSize, std::vector<double>(outputSize));
 }
 
-Network::Network(int _convSize, int _denseNum) : convSize(_convSize), denseNum(_denseNum)
+Network::Network(int _convFilterSize, int _denseNum) : convFilterSize(_convFilterSize), denseNum(_denseNum)
 {
-	init();
+	initMemory(convFilterSize, denseNum);
 }
 
 Network::Network(std::string networkFile)
 {
-	init();
-	//TODO
+	//TODO : network파일 읽어서 CNN과 dense에 값들을 집어넣는거
 }
 
-void Network::init()
+void Network::initMemory(int _convFilterSize, int _denseNum)
 {
-	conv = std::vector<std::vector<Convolutional>>(BRD_LEN - convSize + 1,
-		               std::vector<Convolutional>(BRD_LEN - convSize + 1,
-												  Convolutional(convSize)));
+	conv = std::vector<std::vector<Convolutional>>(BRD_LEN - _convFilterSize + 1,
+						std::vector<Convolutional>(BRD_LEN - _convFilterSize + 1,
+									 Convolutional(_convFilterSize)));
 
-	dense = std::vector<Dense>(denseNum);
-	int denseSize = (BRD_LEN - convSize + 1) * (BRD_LEN - convSize + 1) + 1;		// CNN output + moveNum
+	dense = std::vector<Dense>(_denseNum);
+	int denseSize = (BRD_LEN - _convFilterSize + 1) * (BRD_LEN - _convFilterSize + 1) + 1;		// CNN output + moveNum
 
-	for (int i = 0; i < denseNum - 1; i++)
+	for (int i = 0; i < _denseNum - 1; i++)
 		dense[i] = Dense(denseSize, denseSize);
 
-	dense[denseNum - 1] = Dense(denseSize, 3);
+	dense[_denseNum - 1] = Dense(denseSize, 3);
 }
 
 void Network::saveToFile(std::string fileName)
 {
 	std::string str;
 
-	str += (std::to_string(convSize) + " " + std::to_string(denseNum) + "\n");
+	str += (std::to_string(convFilterSize) + " " + std::to_string(denseNum) + "\n");
 
-	for (int y = 1; y <= BRD_LEN - convSize + 1; y++)
+	//conv layer
+	for (int y = 1; y <= BRD_LEN - convFilterSize + 1; y++)
 	{
-		for (int x = 1; x <= BRD_LEN - convSize + 1; x++)
+		for (int x = 1; x <= BRD_LEN - convFilterSize + 1; x++)
 		{
 			str += ("c " + std::to_string(y) + " " + std::to_string(x) + " "); // conv: (y ~ y + convSize - 1) (x ~ x + convSize - 1)
 
-			for (int cy = 0; cy < convSize; cy++)
+			for (int cy = 0; cy < convFilterSize; cy++)
 			{
-				for (int cx = 0; cx < convSize; cx++)
+				for (int cx = 0; cx < convFilterSize; cx++)
 				{
 					str += (std::to_string(conv[y - 1][x - 1].weight[cy][cx]) + " " +
 							std::to_string(conv[y - 1][x - 1].bias  [cy][cx]) + " ");
@@ -81,6 +70,7 @@ void Network::saveToFile(std::string fileName)
 		}
 	}
 
+	//dense layer(s)
 	for (int layer = 1; layer <= denseNum; layer++)
 	{
 		for (int input = 1; input <= dense[layer - 1].inputSize; input++)

@@ -122,7 +122,7 @@ int main(void)
 		str += std::string(b);
 	}*/
 
-	//Network nn(6, 2);
+	//Network nn("2");
 
 	//nn.saveToFile("nn.txt");
 

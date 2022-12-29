@@ -78,3 +78,30 @@ void generateRandomGame(Board& board, bool printBoard)
             board.printBoard(true);
     }
 }
+
+double ReLU(double x)
+{
+    if (x < 0)
+        return 0;
+
+    return x;
+}
+
+double Sigmoid(double x)
+{
+    return 1 / (1 + exp(-x));
+}
+
+std::vector<double> Softmax(const std::vector<double>& x)
+{
+    double sum = 0;
+    std::vector<double> probability(x.size());
+
+    for (double val : x)
+        sum += exp(val);
+
+    for (int i = 0; i < x.size(); i++)
+        probability[i] = exp(x[i]) / sum;
+
+    return probability;
+}
