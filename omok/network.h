@@ -2,9 +2,6 @@
 
 #include "board.h"
 
-double ReLU(double x);
-double Sigmoid(double x);
-
 class Convolutional
 {
 public:
@@ -29,17 +26,18 @@ public:
 class Network
 {
 private:
-	int convSize;
+	int convFilterSize;
 	int denseNum;
 
 	std::vector<std::vector<Convolutional>> conv;
 	std::vector<Dense> dense;
 
+	void initMemory(int _convFilterSize, int _denseNum);
+
 public:
-	Network(int convSize, int denseNum);
+	Network(int _convFilterSize, int _denseNum);
 	Network(std::string networkFile);
 
-	void init();
 	void saveToFile(std::string fileName);
 	double evaluate(const std::vector<std::vector<int>>& board, int moveNum);
 };
