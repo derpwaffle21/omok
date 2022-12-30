@@ -22,6 +22,7 @@ Dense::Dense(int input, int output) : inputSize(input), outputSize(output)
 Network::Network(int _convFilterSize, int _denseNum) : convFilterSize(_convFilterSize), denseNum(_denseNum)
 {
 	initMemory(convFilterSize, denseNum);
+	randomize();
 }
 
 Network::Network(std::string networkFile)
@@ -42,6 +43,40 @@ void Network::initMemory(int _convFilterSize, int _denseNum)
 		dense[i] = Dense(denseSize, denseSize);
 
 	dense[_denseNum - 1] = Dense(denseSize, 3);
+}
+
+void Network::randomize()
+{
+	// He-et-al Initialization
+
+	// conv
+	for (int i = 0; i < BRD_LEN - convFilterSize + 1; i++)
+	{
+		for (int j = 0; j < BRD_LEN - convFilterSize + 1; j++)
+		{
+			for (int k = 0; k < convFilterSize; k++)
+			{
+				for (int l = 0; l < convFilterSize; l++)
+				{
+					conv[i][j].weight[k][l] = normal_dist_random();
+					conv[i][j].bias[k][l] = 0;
+				}
+			}
+		}
+	}
+
+	// dense
+	for (int i = 0; i < denseNum; i++)
+	{
+		for (int j = 0; j < dense[i].inputSize; j++)
+		{
+			for (int k = 0; k < dense[i].outputSize; k++)
+			{
+				dense[i].weight[j][k] = normal_dist_random() * sqrt((double)2 / dense[i].inputSize);
+				dense[i].bias[j][k] = 0;
+			}
+		}
+	}
 }
 
 void Network::saveToFile(std::string fileName)

@@ -33,6 +33,7 @@ private:
 	std::vector<Dense> dense;
 
 	void initMemory(int _convFilterSize, int _denseNum);
+	void randomize();
 
 public:
 	Network(int _convFilterSize, int _denseNum);
