@@ -122,9 +122,14 @@ int main(void)
 		str += std::string(b);
 	}*/
 
+	/*
 	Network nn(6, 2);
 
-	nn.saveToFile("nn.txt");
+	nn.saveToFile("nn.txt");*/
+
+	Network nn(6, 2);
+
+	//nn.saveToFile("inital_random.nn");
 
 	return 0;
 }
