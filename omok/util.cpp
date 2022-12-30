@@ -9,11 +9,18 @@
 #include "board.h"
 
 std::mt19937 rng = std::mt19937(std::random_device{}());;
-std::normal_distribution<double> dist(0, 1);
+std::normal_distribution<double> normalDist(0, 1);
+std::uniform_int_distribution<long long> uniformDist(0, LONG_INF);
 
-double normal_dist_random()
+double normalDistributionRandom()
 {
-    return dist(rng);
+    return normalDist(rng);
+}
+
+// return a uniform random number from 0 ~ range
+int randomInt(int range)
+{
+    return uniformDist(rng) % ((long long)range + 1);
 }
 
 // y, x
