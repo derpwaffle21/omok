@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include "network.h"
 #include "util.h"
 
@@ -27,7 +29,69 @@ Network::Network(int _convFilterSize, int _denseNum) : convFilterSize(_convFilte
 
 Network::Network(std::string networkFile)
 {
-	//TODO : network파일 읽어서 CNN과 dense에 값들을 집어넣는거
+	std::ifstream file(networkFile);
+	std::string word;
+
+	file >> word;
+	convFilterSize = std::stoi(word);
+
+	file >> word;
+	denseNum = std::stoi(word);
+
+	initMemory(convFilterSize, denseNum);
+
+	for (int y = 1; y <= BRD_LEN - convFilterSize + 1; y++)
+	{
+		for (int x = 1; x <= BRD_LEN - convFilterSize + 1; x++)
+		{
+			file >> word;	// "c"
+			ASSERT(word == "c");
+
+			file >> word;
+			ASSERT(std::stoi(word) == y);
+
+			file >> word;
+			ASSERT(std::stoi(word) == x);
+
+			for (int cy = 0; cy < convFilterSize; cy++)
+			{
+				for (int cx = 0; cx < convFilterSize; cx++)
+				{
+					file >> word;
+					conv[y - 1][x - 1].weight[cy][cx] = std::stod(word);
+
+					file >> word;
+					conv[y - 1][x - 1].bias[cy][cx] = std::stod(word);
+				}
+			}
+		}
+	}
+
+	for (int layer = 1; layer <= denseNum; layer++)
+	{
+		for (int input = 1; input <= dense[layer - 1].inputSize; input++)
+		{
+			file >> word;	// "d"
+			ASSERT(word == "d");
+
+			file >> word;
+			ASSERT(std::stoi(word) == layer);
+
+			file >> word;
+			ASSERT(std::stoi(word) == input);
+
+			for (int output = 1; output <= dense[layer - 1].outputSize; output++)
+			{
+				file >> word;
+				dense[layer - 1].weight[input - 1][output - 1] = std::stod(word);
+
+				file >> word;
+				dense[layer - 1].bias  [input - 1][output - 1] = std::stod(word);
+			}
+		}
+	}
+
+	file.close();
 }
 
 void Network::initMemory(int _convFilterSize, int _denseNum)
@@ -50,30 +114,30 @@ void Network::randomize()
 	// He-et-al Initialization
 
 	// conv
-	for (int i = 0; i < BRD_LEN - convFilterSize + 1; i++)
+	for (int y = 0; y < BRD_LEN - convFilterSize + 1; y++)
 	{
-		for (int j = 0; j < BRD_LEN - convFilterSize + 1; j++)
+		for (int x = 0; x < BRD_LEN - convFilterSize + 1; x++)
 		{
-			for (int k = 0; k < convFilterSize; k++)
+			for (int cy = 0; cy < convFilterSize; cy++)
 			{
-				for (int l = 0; l < convFilterSize; l++)
+				for (int cx = 0; cx < convFilterSize; cx++)
 				{
-					conv[i][j].weight[k][l] = normal_dist_random();
-					conv[i][j].bias[k][l] = 0;
+					conv[y][x].weight[cy][cx] = normal_dist_random();
+					conv[y][x].bias  [cy][cx] = 0;
 				}
 			}
 		}
 	}
 
 	// dense
-	for (int i = 0; i < denseNum; i++)
+	for (int layer = 0; layer < denseNum; layer++)
 	{
-		for (int j = 0; j < dense[i].inputSize; j++)
+		for (int input = 0; input < dense[layer].inputSize; input++)
 		{
-			for (int k = 0; k < dense[i].outputSize; k++)
+			for (int output = 0; output < dense[layer].outputSize; output++)
 			{
-				dense[i].weight[j][k] = normal_dist_random() * sqrt((double)2 / dense[i].inputSize);
-				dense[i].bias[j][k] = 0;
+				dense[layer].weight[input][output] = normal_dist_random() * sqrt((double)2 / dense[layer].inputSize);
+				dense[layer].bias  [input][output] = 0;
 			}
 		}
 	}
