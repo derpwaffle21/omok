@@ -15,6 +15,7 @@
 /*.txt
 /*.nn
 
+
 .vs/
 x64/
 training/
