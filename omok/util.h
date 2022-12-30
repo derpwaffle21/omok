@@ -23,8 +23,7 @@ exit(1); \
 }
 #endif
 
-double normalDistributionRandom();
-int randomInt(int range);
+double normal_dist_random();
 
 std::pair<int, int> idxToCoord(int idx);
 int coordToIdx(std::pair<int, int> coord);	// y, x

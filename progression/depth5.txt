@@ -1,3 +1,0 @@
-generateMoveSetByEval 기준
-
-internal board eval -> 4769687 nodes, eval: 15
