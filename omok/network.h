@@ -16,8 +16,8 @@ class Dense
 {
 public:
 	int inputSize, outputSize;
-	std::vector<std::vector<double>> weight;
-	std::vector<std::vector<double>> bias;
+	std::vector<std::vector<double>> weight; // [inputidx][outputidx]
+	std::vector<std::vector<double>> bias;	 // [inputidx][outputidx]
 
 	Dense();
 	Dense(int input, int output);
@@ -40,5 +40,5 @@ public:
 	Network(std::string networkFile);
 
 	void saveToFile(std::string fileName);
-	double evaluate(const std::vector<std::vector<int>>& board, int moveNum);
+	std::vector<double> evaluate(const std::vector<std::vector<int>>& board, int moveNum);
 };

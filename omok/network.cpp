@@ -189,9 +189,82 @@ void Network::saveToFile(std::string fileName)
 	saveStringToFile(str, fileName);
 }
 
-double Network::evaluate(const std::vector<std::vector<int>>& board, int moveNum)
+std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board, int moveNum)
 {
-	//TODO
+	//1. Conv Layer
+	constexpr int output_size = BRD_LEN - convFilterSize + 1;
+	std::vector<std::vector<double>> conv_output(output_size, std::vector<double>(output_size));
+	for (int loc_y = 0; loc_y < output_size; loc_y++) 
+	{
+		for (int loc_x = 0; loc_x < output_size; loc_x++) 
+		{
+			Convolutional current_conv = conv[loc_y][loc_x];
+			double temp = 0; //value of current output
+			for (int conv_y = 0; conv_y < convFilterSize; conv_y++) 
+			{
+				for (int conv_x = 0; conv_x < convFilterSize; conv_x++)
+				{
+					int board_y = conv_y + loc_y;
+					int board_x = conv_x + loc_x;
+					int board_value = board[conv_y][conv_x];
+					int multiple_value; // change BLACK/WHITE/EMPTY to -1/1/0
+					switch (board_value) 
+					{
+					case BLACK:
+						multiple_value = -1;
+						break;
+					case WHITE:
+						multiple_value = 1;
+						break;
+					case EMPTY:
+						multiple_value = 0;
+						break;
+					default:
+						errorMessage("Unknown Board Value Detected");
+					}				
+					temp += (current_conv.weight[conv_y][conv_x] * multiple_value
+						   + current_conv.bias[conv_y][conv_x]);
 
-	return 0;
+				}
+			}
+			conv_output[loc_y][loc_x] = temp;
+		}
+	}
+	//2. Dense Layer(s)
+	bool saving_index = 1;
+	std::vector<double> hiddens[2];
+	hiddens[0].resize(output_size * output_size + 1);
+	int idx = 0;
+	//comment : 이 부분 살짝 비효율적임(hiddens를 위로 보내고 이 코드를 없애도 됨)
+	for (int hidden_y = 0; hidden_y < conv_output.size(); hidden_y++) 
+	{
+		for (int hidden_x = 0; hidden_x < conv_output.size(); hidden_x++) 
+		{
+			hiddens[0][idx] = conv_output[hidden_y][hidden_x];
+			idx++;
+		}
+	}
+	hiddens[0][idx] = moveNum;
+	for (int layer = 0; layer < denseNum; layer++) 
+	{
+		Dense current_layer = dense[layer];
+		hiddens[saving_index].resize(current_layer.outputSize, 0);
+		//Error detecting code
+		if (current_layer.inputSize != hiddens[!saving_index].size()) 
+		{
+			errorMessage("Size of Dense Layer is Invalid");
+		}
+		for (int outputidx = 0; outputidx < current_layer.outputSize; outputidx++) 
+		{
+			for (int inputidx = 0; inputidx < current_layer.inputSize; inputidx++) 
+			{
+				hiddens[saving_index][outputidx] +=
+					hiddens[!saving_index][inputidx] * current_layer.weight[inputidx][outputidx]
+				  + current_layer.bias[inputidx][outputidx];
+			}
+		}
+		saving_index = !saving_index;
+	}
+	//Last saved index = !saving_index
+	return hiddens[!saving_index];
 }
