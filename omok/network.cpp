@@ -122,7 +122,7 @@ void Network::randomize()
 			{
 				for (int cx = 0; cx < convFilterSize; cx++)
 				{
-					conv[y][x].weight[cy][cx] = normal_dist_random();
+					conv[y][x].weight[cy][cx] = normalDistributionRandom();
 					conv[y][x].bias  [cy][cx] = 0;
 				}
 			}
@@ -136,7 +136,7 @@ void Network::randomize()
 		{
 			for (int output = 0; output < dense[layer].outputSize; output++)
 			{
-				dense[layer].weight[input][output] = normal_dist_random() * sqrt((double)2 / dense[layer].inputSize);
+				dense[layer].weight[input][output] = normalDistributionRandom() * sqrt((double)2 / dense[layer].inputSize);
 				dense[layer].bias  [input][output] = 0;
 			}
 		}

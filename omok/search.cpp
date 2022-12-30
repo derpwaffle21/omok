@@ -4,7 +4,7 @@
 #include "search.h"
 
 // when BRD_LEN % 2 == 1
-std::vector<int> generateMoveSet(const Board& _board, int color)
+std::vector<int> generateMoveSetByPos(const Board& _board, int color)
 {
 	std::vector<int> moves;
 	std::pair<int, int> center = std::make_pair(ceil((float)BRD_LEN / 2), ceil((float)BRD_LEN / 2));
@@ -35,6 +35,36 @@ std::vector<int> generateMoveSet(const Board& _board, int color)
 	return moves;
 }
 
+std::vector<int> generateMoveSetByEval(Board& _board, int color)
+{
+	std::vector<std::pair<int, int>> scoreMove;	// score, move
+
+	for (int idx = 0; idx < BRD_SQ_NUM; idx++)
+	{
+		if (!outOfBounds(idx) && _board.getBoardElement(idx) == EMPTY)
+		{
+			_board.makeMove(idx);
+
+			//eval is always in black's perspective
+			if (color == BLACK)
+				scoreMove.push_back(std::make_pair(-evaluate(_board), idx));	// sort -> smallest is first -> BLACK_WIN = MAX_EVAL(positive)
+			else
+				scoreMove.push_back(std::make_pair(evaluate(_board), idx));
+
+			_board.undoMove();
+		}
+	}
+
+	std::sort(scoreMove.begin(), scoreMove.end());
+
+	std::vector<int> ms;
+
+	for (std::pair<int, int>& p : scoreMove)
+		ms.push_back(p.second);
+
+	return ms;
+}
+
 std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, int color, int temp)
 {
 	ASSERT(_board.state == BoardState::UNF);
@@ -42,7 +72,7 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, in
 	int alpha = -INF;
 	int beta = INF;
 
-	std::vector<int> moveSet = generateMoveSet(_board, color);
+	std::vector<int> moveSet = generateMoveSetByEval(_board, color);
 
 	for (int& idx : moveSet)
 	{
@@ -79,15 +109,15 @@ int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& i
 {
 	if (searchDepth == depth || _board.state != BoardState::UNF)
 	{
-		int change = (rand() % (temp * 2 + 1)) - temp;
+		int changeByTemp = randomInt(temp * 2) - temp;
 
 		if (color == BLACK)
-			return evaluate(_board) + change;
+			return evaluate(_board) + changeByTemp;
 		else
-			return -evaluate(_board) + change;
+			return -evaluate(_board) + changeByTemp;
 	}
 
-	std::vector<int> moveSet = generateMoveSet(_board, color);
+	std::vector<int> moveSet = generateMoveSetByEval(_board, color);
 
 	for (int& idx : moveSet)
 	{
@@ -101,9 +131,9 @@ int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& i
 
 		int score;
 		if (color == BLACK)
-			score = -alphaBeta(-beta, -alpha, searchDepth, _board, info, WHITE, depth + 1);
+			score = -alphaBeta(-beta, -alpha, searchDepth, _board, info, WHITE, depth + 1, temp);
 		else
-			score = -alphaBeta(-beta, -alpha, searchDepth, _board, info, BLACK, depth + 1);
+			score = -alphaBeta(-beta, -alpha, searchDepth, _board, info, BLACK, depth + 1, temp);
 
 		_board.undoMove();
 

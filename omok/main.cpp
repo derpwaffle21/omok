@@ -128,6 +128,7 @@ int main(void)
 	nn.saveToFile("nn.txt");*/
 
 	Network nn(6, 2);
+	playGame(4);
 
 	//nn.saveToFile("inital_random.nn");
 
