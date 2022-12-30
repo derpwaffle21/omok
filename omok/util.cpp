@@ -9,6 +9,12 @@
 #include "board.h"
 
 std::mt19937 rng = std::mt19937(std::random_device{}());;
+std::normal_distribution<double> dist(0, 1);
+
+double normal_dist_random()
+{
+    return dist(rng);
+}
 
 // y, x
 std::pair<int, int> idxToCoord(int idx)
