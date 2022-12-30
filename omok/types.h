@@ -1,6 +1,7 @@
 #pragma once
 
 #define INF 987654321
+#define LONG_INF 98765432198754321
 
 constexpr int BRD_LEN = 13;
 constexpr int BRD_SQ_NUM = (BRD_LEN + 2) * (BRD_LEN + 2);
