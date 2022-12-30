@@ -11,7 +11,9 @@
 *.vcxproj
 *.filters
 *.user
-*.txt
+
+/*.txt
+/*.nn
 
 .vs/
 x64/

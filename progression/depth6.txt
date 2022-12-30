@@ -1,0 +1,3 @@
+generateMoveSetByEval 기준
+
+internal board eval -> 14000113 nodes, eval: 1?(12?, 13?)
