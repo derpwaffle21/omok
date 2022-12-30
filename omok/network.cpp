@@ -266,5 +266,5 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 		saving_index = !saving_index;
 	}
 	//Last saved index = !saving_index
-	return Softmax(hiddens[!saving_index]);
+	return Softmax(hiddens[!saving_index]); // returning probabilities
 }
