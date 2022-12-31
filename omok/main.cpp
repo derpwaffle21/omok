@@ -87,7 +87,7 @@ void playGame(int depth)
 			std::pair<int, int> coord = idxToCoord(bestMove);
 			std::cout << "depth: " << depth << std::endl;
 			std::cout << "move (" << coord.second << ", " << coord.first << ")" << std::endl;
-			std::cout << "eval: " << score << std::endl;
+			std::cout << "eval: " << abs((double)score / 100) << "% for black" << std::endl;
 			std::cout << "nodes: " << info.nodes << std::endl;
 		}
 

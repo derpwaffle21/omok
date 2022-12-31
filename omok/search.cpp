@@ -115,9 +115,9 @@ int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& i
 		int changeByTemp = randomInt(temp * 2) - temp;
 
 		if (color == BLACK)
-			return (evaluate(_board, baseNetwork) * 1000) + changeByTemp;
+			return (evaluate(_board, baseNetwork) * 10000) + changeByTemp;
 		else
-			return -(evaluate(_board, baseNetwork) * 1000) + changeByTemp;
+			return -(evaluate(_board, baseNetwork) * 10000) + changeByTemp;
 	}
 
 	std::vector<int> moveSet = generateMoveSetByEval(_board, color);
