@@ -3,6 +3,7 @@
 #include <fstream>
 #include <random>
 #include <algorithm>
+#include <cassert>
 
 #include "util.h"
 #include "types.h"
@@ -90,6 +91,12 @@ void generateRandomGame(Board& board, bool printBoard)
         if (printBoard)
             board.printBoard(true);
     }
+}
+
+void errorMessage(const char* errormessage) {
+    std::cout << errormessage << '\n';
+    assert(0);
+    return;
 }
 
 double ReLU(double x)

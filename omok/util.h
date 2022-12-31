@@ -34,6 +34,8 @@ void saveGameToFile(const Board& board, std::string fileName);
 void saveStringToFile(const std::string& gameString, std::string fileName);
 void generateRandomGame(Board& board, bool printBoard = false);
 
+void errorMessage(const char* errormessage);
+
 double ReLU(double x);
 double Sigmoid(double x);
 std::vector<double> Softmax(const std::vector<double>& x);
