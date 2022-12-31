@@ -2,6 +2,15 @@
 #include "board.h"
 #include "util.h"
 
+Board::Board()
+{
+	ply = 0;
+	board = std::vector<std::vector<int>>(BRD_LEN, std::vector<int>(BRD_LEN, 0));
+
+	state = BoardState::UNF;
+	eval = 0;
+}
+
 int Board::getTurn() const
 {
 	return ply % 2; // BLACK = 0, WHITE = 1
@@ -66,6 +75,13 @@ void Board::makeMove(int idx)
 	ASSERT(!bb[BLACK].test(idx) && !bb[WHITE].test(idx));
 
 	bb[getTurn()].set(idx);
+	
+	std::pair<int, int> coord = idxToCoord(idx);
+
+	if (getTurn() == BLACK)
+		board[coord.first - 1][coord.second - 1] = 1;
+	else		  // WHITE
+		board[coord.first - 1][coord.second - 1] = -1;
 
 	std::pair<bool, int> chkMove = checkMove(idx);
 	bool gamestateChanged = chkMove.first;
@@ -158,6 +174,11 @@ void Board::undoMove()
 	else
 		bb[BLACK].reset(hist.back());
 
+	std::pair<int, int> coord = idxToCoord(hist.back());
+
+	ASSERT(board[coord.first - 1][coord.second - 1] != 0);
+	board[coord.first - 1][coord.second - 1] = 0;
+
 	state = BoardState::UNF;	//since we can't make a move on a board that is finished, any undos will make it unfinished
 	hist.pop_back();
 	ply--;
@@ -184,6 +205,11 @@ int Board::getBoardElement(int idx) const
 const std::vector<int>& Board::getHist() const
 {
 	return this->hist;
+}
+
+const std::vector<std::vector<int>>& Board::get2DVector() const
+{
+	return this->board;
 }
 
 Board::operator std::string() const

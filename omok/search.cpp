@@ -3,6 +3,8 @@
 
 #include "search.h"
 
+Network baseNetwork("initial_random.nn");
+
 // when BRD_LEN % 2 == 1
 std::vector<int> generateMoveSetByPos(const Board& _board, int color)
 {
@@ -35,6 +37,7 @@ std::vector<int> generateMoveSetByPos(const Board& _board, int color)
 	return moves;
 }
 
+// using board's internal eval
 std::vector<int> generateMoveSetByEval(Board& _board, int color)
 {
 	std::vector<std::pair<int, int>> scoreMove;	// score, move
@@ -47,9 +50,9 @@ std::vector<int> generateMoveSetByEval(Board& _board, int color)
 
 			//eval is always in black's perspective
 			if (color == BLACK)
-				scoreMove.push_back(std::make_pair(-evaluate(_board), idx));	// sort -> smallest is first -> BLACK_WIN = MAX_EVAL(positive)
+				scoreMove.push_back(std::make_pair(-_board.eval, idx));	// sort -> smallest is first -> BLACK_WIN = MAX_EVAL(positive)
 			else
-				scoreMove.push_back(std::make_pair(evaluate(_board), idx));
+				scoreMove.push_back(std::make_pair(_board.eval, idx));
 
 			_board.undoMove();
 		}
@@ -112,9 +115,9 @@ int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& i
 		int changeByTemp = randomInt(temp * 2) - temp;
 
 		if (color == BLACK)
-			return evaluate(_board) + changeByTemp;
+			return (evaluate(_board, baseNetwork) * 1000) + changeByTemp;
 		else
-			return -evaluate(_board) + changeByTemp;
+			return -(evaluate(_board, baseNetwork) * 1000) + changeByTemp;
 	}
 
 	std::vector<int> moveSet = generateMoveSetByEval(_board, color);

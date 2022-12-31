@@ -127,7 +127,23 @@ int main(void)
 
 	nn.saveToFile("nn.txt");*/
 
-	Network nn(6, 2);
+	/*
+	Network nn("initial_random.nn");
+	Board board;
+
+	board.makeMove(coordToIdx(std::make_pair(7, 7)));
+
+	std::vector<double> output;
+	output = nn.evaluate(board.get2DVector(), board.getHist().size());
+
+	std::cout << output.size() << std::endl;
+	std::cout << output[0] << ", " << output[1] << ", " << output[2] << std::endl;
+
+	std::vector<double> prob = Softmax(output);
+
+	std::cout << prob.size() << std::endl;
+	std::cout << prob[0] << ", " << prob[1] << ", " << prob[2] << std::endl;*/
+
 	playGame(4);
 
 	//nn.saveToFile("inital_random.nn");

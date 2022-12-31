@@ -1,7 +1,8 @@
 #pragma once
 
 #include "board.h"
+#include "network.h"
 
 constexpr int TEMPO = 10;
 
-int evaluate(Board& _board);
+double evaluate(const Board& _board, const Network& network);

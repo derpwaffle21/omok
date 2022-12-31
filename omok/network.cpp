@@ -21,6 +21,17 @@ Dense::Dense(int input, int output) : inputSize(input), outputSize(output)
 	bias   = std::vector<std::vector<double>>(inputSize, std::vector<double>(outputSize));
 }
 
+std::vector<double> Dense::output(const std::vector<double>& input) const
+{
+	std::vector<double> out(outputSize);
+
+	for (int i = 0; i < outputSize; i++)
+		for (int j = 0; j < inputSize; j++)
+			out[i] += (input[j] * weight[j][i] + bias[j][i]);
+
+	return out;
+}
+
 Network::Network(int _convFilterSize, int _denseNum) : convFilterSize(_convFilterSize), denseNum(_denseNum)
 {
 	initMemory(convFilterSize, denseNum);
@@ -143,7 +154,7 @@ void Network::randomize()
 	}
 }
 
-void Network::saveToFile(std::string fileName)
+void Network::saveToFile(std::string fileName) const
 {
 	std::string str;
 
@@ -189,9 +200,33 @@ void Network::saveToFile(std::string fileName)
 	saveStringToFile(str, fileName);
 }
 
-double Network::evaluate(const std::vector<std::vector<int>>& board, int moveNum)
+std::vector<double> Network::evaluate(const Board& board) const
 {
-	//TODO
+	return evaluate(board.get2DVector(), board.getHist().size());
+}
 
-	return 0;
+std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board, int moveNum) const
+{
+	std::vector<double> out;
+
+	for (int y = 0; y < BRD_LEN - convFilterSize + 1; y++)
+	{
+		for (int x = 0; x < BRD_LEN - convFilterSize + 1; x++)
+		{
+			double filterOutput = 0;
+
+			for (int cy = 0; cy < convFilterSize; cy++)
+				for (int cx = 0; cx < convFilterSize; cx++)
+					filterOutput += (board[y + cy][x + cx] * conv[y][x].weight[cy][cx] + conv[y][x].bias[cy][cx]);
+
+			out.push_back(filterOutput);
+		}
+	}
+
+	out.push_back(moveNum);
+
+	for (int i = 0; i < denseNum; i++)
+		out = dense[i].output(out);
+
+	return out;
 }
