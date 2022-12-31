@@ -107,14 +107,16 @@ double Sigmoid(double x)
 
 std::vector<double> Softmax(const std::vector<double>& x)
 {
+    double c = *std::max_element(x.begin(), x.end());
     double sum = 0;
+
     std::vector<double> probability(x.size());
 
     for (double val : x)
-        sum += exp(val);
+        sum += exp(val - c);
 
     for (int i = 0; i < x.size(); i++)
-        probability[i] = exp(x[i]) / sum;
+        probability[i] = exp(x[i] - c) / sum;
 
     return probability;
 }
