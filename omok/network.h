@@ -2,6 +2,8 @@
 
 #include "board.h"
 
+double activate(double x);
+
 class Convolutional
 {
 public:

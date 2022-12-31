@@ -3,6 +3,11 @@
 #include "network.h"
 #include "util.h"
 
+double activate(double x)
+{
+	return Sigmoid(x);
+}
+
 Convolutional::Convolutional(int _size) : size(_size)
 {
 	weight = std::vector<std::vector<double>>(size, std::vector<double>(size));
@@ -28,6 +33,9 @@ std::vector<double> Dense::output(const std::vector<double>& input) const
 	for (int i = 0; i < outputSize; i++)
 		for (int j = 0; j < inputSize; j++)
 			out[i] += (input[j] * weight[j][i] + bias[j][i]);
+
+	for (int i = 0; i < outputSize; i++)
+		out[i] = activate(out[i]);
 
 	return out;
 }
@@ -220,7 +228,7 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 				for (int cx = 0; cx < convFilterSize; cx++)
 					filterOutput += (board[y + cy][x + cx] * conv[y][x].weight[cy][cx] + conv[y][x].bias[cy][cx]);
 
-			out.push_back(filterOutput);
+			out.push_back(activate(filterOutput));
 		}
 	}
 
