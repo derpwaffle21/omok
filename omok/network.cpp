@@ -3,11 +3,6 @@
 #include "network.h"
 #include "util.h"
 
-double activate(double x)
-{
-	return Sigmoid(x);
-}
-
 Convolutional::Convolutional(int _size) : size(_size)
 {
 	weight = std::vector<std::vector<double>>(size, std::vector<double>(size));
@@ -26,7 +21,7 @@ Dense::Dense(int input, int output) : inputSize(input), outputSize(output)
 	bias   = std::vector<std::vector<double>>(inputSize, std::vector<double>(outputSize));
 }
 
-std::vector<double> Dense::output(const std::vector<double>& input, bool activationFunction) const
+std::vector<double> Dense::output(const std::vector<double>& input, double (*activation)(double)) const
 {
 	std::vector<double> out(outputSize);
 
@@ -34,12 +29,8 @@ std::vector<double> Dense::output(const std::vector<double>& input, bool activat
 		for (int j = 0; j < inputSize; j++)
 			out[i] += (input[j] * weight[j][i] + bias[j][i]);
 
-	if (activationFunction)
-	{
-		for (int i = 0; i < outputSize; i++)
-			out[i] = activate(out[i]);
-	}
-
+	for (int i = 0; i < outputSize; i++)
+		out[i] = activation(out[i]);
 
 	return out;
 }
@@ -212,12 +203,12 @@ void Network::saveToFile(std::string fileName) const
 	saveStringToFile(str, fileName);
 }
 
-std::vector<double> Network::evaluate(const Board& board) const
+std::vector<double> Network::evaluate(const Board& board, double (*activation)(double)) const
 {
-	return evaluate(board.get2DVector(), board.getHist().size());
+	return evaluate(board.get2DVector(), board.getHist().size(), activation);
 }
 
-std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board, int moveNum) const
+std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board, int moveNum, double (*activation)(double)) const
 {
 	std::vector<double> out;
 
@@ -232,7 +223,7 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 				for (int cx = 0; cx < convFilterSize; cx++)
 					filterOutput += (board[y + cy][x + cx] * conv[y][x].weight[cy][cx] + conv[y][x].bias[cy][cx]);
 
-			out.push_back(activate(filterOutput));
+			out.push_back(activation(filterOutput));
 		}
 	}
 
@@ -242,10 +233,10 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 	// dense
 	// hidden layers
 	for (int i = 0; i < denseNum - 1; i++)
-		out = dense[i].output(out, true);
+		out = dense[i].output(out, activation);
 
 	// no activation function for last layer
-	out = dense[denseNum - 1].output(out, false);
+	out = dense[denseNum - 1].output(out, Linear);
 
 	return out;
 }

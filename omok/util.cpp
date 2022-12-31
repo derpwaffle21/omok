@@ -92,6 +92,11 @@ void generateRandomGame(Board& board, bool printBoard)
     }
 }
 
+double Linear(double x)
+{
+    return x;
+}
+
 double ReLU(double x)
 {
     if (x < 0)
@@ -107,14 +112,28 @@ double Sigmoid(double x)
 
 std::vector<double> Softmax(const std::vector<double>& x)
 {
+    double c = *std::max_element(x.begin(), x.end());
     double sum = 0;
+
     std::vector<double> probability(x.size());
 
     for (double val : x)
-        sum += exp(val);
+        sum += exp(val - c);
 
     for (int i = 0; i < x.size(); i++)
-        probability[i] = exp(x[i]) / sum;
+        probability[i] = exp(x[i] - c) / sum;
 
     return probability;
+}
+
+double MeanSquaredError(const std::vector<double>& targets, const std::vector<double>& values)
+{
+    ASSERT(targets.size() == values.size());
+
+    double mse = 0;
+
+    for (int i = 0; i < targets.size(); i++)
+        mse += 0.5 * (targets[i] - values[i]) * (targets[i] - values[i]);   // faster than using pow
+
+    return mse;
 }

@@ -2,8 +2,6 @@
 
 #include "board.h"
 
-double activate(double x);
-
 class Convolutional
 {
 public:
@@ -24,7 +22,7 @@ public:
 	Dense();
 	Dense(int input, int output);
 
-	std::vector<double> output(const std::vector<double>& input, bool activationFunction) const;
+	std::vector<double> output(const std::vector<double>& input, double (*activation)(double)) const;
 };
 
 class Network
@@ -44,6 +42,6 @@ public:
 	Network(std::string networkFile);
 
 	void saveToFile(std::string fileName) const;
-	std::vector<double> evaluate(const Board& board) const;
-	std::vector<double> evaluate(const std::vector<std::vector<int>>& board, int moveNum) const;
+	std::vector<double> evaluate(const Board& board, double (*activation)(double)) const;
+	std::vector<double> evaluate(const std::vector<std::vector<int>>& board, int moveNum, double (*activation)(double)) const;
 };
