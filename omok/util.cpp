@@ -110,6 +110,11 @@ double Sigmoid(double x)
     return 1 / (1 + exp(-x));
 }
 
+double SigmoidDerivative(double x)
+{
+    return x * (1 - x);
+}
+
 std::vector<double> Softmax(const std::vector<double>& x)
 {
     double c = *std::max_element(x.begin(), x.end());
@@ -136,4 +141,16 @@ double MeanSquaredError(const std::vector<double>& targets, const std::vector<do
         mse += 0.5 * (targets[i] - values[i]) * (targets[i] - values[i]);   // faster than using pow
 
     return mse;
+}
+
+double CrossEntropyError(const std::vector<double>& targets, const std::vector<double>& values)
+{
+    ASSERT(targets.size() == values.size());
+
+    double cse = 0;
+
+    for (int i = 0; i < targets.size(); i++)
+        cse += targets[i] * std::log(values[i] + 1e-7); // 1e-7: delta to avoid inf
+
+    return -cse;
 }

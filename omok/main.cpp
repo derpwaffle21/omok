@@ -144,9 +144,10 @@ int main(void)
 	std::cout << prob.size() << std::endl;
 	std::cout << prob[0] << ", " << prob[1] << ", " << prob[2] << std::endl;*/
 
+
 	playGame(4);
 
-	//nn.saveToFile("inital_random.nn");
+	
 
 	return 0;
 }
