@@ -118,3 +118,15 @@ std::vector<double> Softmax(const std::vector<double>& x)
 
     return probability;
 }
+
+double MeanSquaredError(const std::vector<double>& targets, const std::vector<double>& values)
+{
+    ASSERT(targets.size() == values.size());
+
+    double mse = 0;
+
+    for (int i = 0; i < targets.size(); i++)
+        mse += 0.5 * (targets[i] - values[i]) * (targets[i] - values[i]);   // faster than using pow
+
+    return mse;
+}
