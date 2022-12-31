@@ -9,15 +9,18 @@ class Board
 {
 private:
 	std::bitset<BRD_SQ_NUM> bb[2];
-	int ply = 0;
-	std::vector<int> hist = std::vector<int>();
+	int ply;
+	std::vector<int> hist;
+	std::vector<std::vector<int>> board;
 
 	std::pair<bool, int> checkMove(int idx) const;
 	int countContinous(int idx, int dir) const;
 
 public:
-	BoardState state = BoardState::UNF;
-	int eval = 0;
+	Board();
+
+	BoardState state;
+	int eval;
 
 	void printBoard(bool printInfo) const;
 	void makeMove(int idx);
@@ -26,7 +29,9 @@ public:
 
 	int getBoardElement(int idx) const;
 	int getTurn() const;
+
 	const std::vector<int>& getHist() const;
+	const std::vector<std::vector<int>>& get2DVector() const;
 
 	operator std::string() const;
 };

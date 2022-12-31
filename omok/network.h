@@ -16,11 +16,13 @@ class Dense
 {
 public:
 	int inputSize, outputSize;
-	std::vector<std::vector<double>> weight; // [inputidx][outputidx]
-	std::vector<std::vector<double>> bias;	 // [inputidx][outputidx]
+	std::vector<std::vector<double>> weight;
+	std::vector<std::vector<double>> bias;
 
 	Dense();
 	Dense(int input, int output);
+
+	std::vector<double> output(const std::vector<double>& input) const;
 };
 
 class Network
@@ -39,6 +41,7 @@ public:
 	Network(int _convFilterSize, int _denseNum);
 	Network(std::string networkFile);
 
-	void saveToFile(std::string fileName);
-	std::vector<double> evaluate(const std::vector<std::vector<int>>& board, int moveNum);
+	void saveToFile(std::string fileName) const;
+	std::vector<double> evaluate(const Board& board) const;
+	std::vector<double> evaluate(const std::vector<std::vector<int>>& board, int moveNum) const;
 };

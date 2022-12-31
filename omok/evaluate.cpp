@@ -1,11 +1,13 @@
 #include <iostream>
+
+#include "util.h"
+#include "network.h"
 #include "evaluate.h"
 #include "types.h"
-#include "board.h"
 
-int evaluate(Board& _board)
+double evaluate(const Board& _board, const Network& network)
 {
-	int eval;
+	double eval;
 
 	if (_board.state == BoardState::B_WIN)
 		eval = MAX_EVAL;
@@ -15,13 +17,10 @@ int evaluate(Board& _board)
 		eval = 0;
 	else
 	{
-		eval = _board.eval;
+		std::vector<double> prob = Softmax(network.evaluate(_board));
 
-		// tempo for the side to move
-		if (_board.getTurn() == BLACK)
-			eval += TEMPO;
-		else
-			eval -= TEMPO;
+		// prob[0] = BLACK_WIN, prob[1] = DRAW, prob[2] = WHITE_WIN
+		eval = 1 * prob[0] + 0.5 * prob[1] + 0 * prob[2];
 	}
 
 	return eval;
