@@ -92,6 +92,11 @@ void generateRandomGame(Board& board, bool printBoard)
     }
 }
 
+double Linear(double x)
+{
+    return x;
+}
+
 double ReLU(double x)
 {
     if (x < 0)
