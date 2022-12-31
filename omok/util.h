@@ -37,5 +37,8 @@ void generateRandomGame(Board& board, bool printBoard = false);
 double Linear(double x);
 double ReLU(double x);
 double Sigmoid(double x);
+double SigmoidDerivative(double x);
 std::vector<double> Softmax(const std::vector<double>& x);
+
 double MeanSquaredError(const std::vector<double>& targets, const std::vector<double>& values);
+double CrossEntropyError(const std::vector<double>& targets, const std::vector<double>& values);

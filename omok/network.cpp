@@ -6,7 +6,7 @@
 Convolutional::Convolutional(int _size) : size(_size)
 {
 	weight = std::vector<std::vector<double>>(size, std::vector<double>(size));
-	bias   = std::vector<std::vector<double>>(size, std::vector<double>(size));
+	bias = 0;
 }
 
 Dense::Dense()
@@ -18,16 +18,20 @@ Dense::Dense()
 Dense::Dense(int input, int output) : inputSize(input), outputSize(output)
 {
 	weight = std::vector<std::vector<double>>(inputSize, std::vector<double>(outputSize));
-	bias   = std::vector<std::vector<double>>(inputSize, std::vector<double>(outputSize));
+	bias   = std::vector<double>(outputSize);
 }
 
-std::vector<double> Dense::output(const std::vector<double>& input, double (*activation)(double)) const
+std::vector<double> Dense::forward(const std::vector<double>& input, double (*activation)(double)) const
 {
 	std::vector<double> out(outputSize);
 
 	for (int i = 0; i < outputSize; i++)
+	{
 		for (int j = 0; j < inputSize; j++)
-			out[i] += (input[j] * weight[j][i] + bias[j][i]);
+			out[i] += input[j] * weight[j][i];
+
+		out[i] += bias[i];
+	}
 
 	for (int i = 0; i < outputSize; i++)
 		out[i] = activation(out[i]);
@@ -73,17 +77,17 @@ Network::Network(std::string networkFile)
 				{
 					file >> word;
 					conv[y - 1][x - 1].weight[cy][cx] = std::stod(word);
-
-					file >> word;
-					conv[y - 1][x - 1].bias[cy][cx] = std::stod(word);
 				}
 			}
+
+			file >> word;
+			conv[y - 1][x - 1].bias = std::stod(word);
 		}
 	}
 
 	for (int layer = 1; layer <= denseNum; layer++)
 	{
-		for (int input = 1; input <= dense[layer - 1].inputSize; input++)
+		for (int output = 1; output <= dense[layer - 1].outputSize; output++)
 		{
 			file >> word;	// "d"
 			ASSERT(word == "d");
@@ -94,14 +98,14 @@ Network::Network(std::string networkFile)
 			file >> word;
 			ASSERT(std::stoi(word) == input);
 
-			for (int output = 1; output <= dense[layer - 1].outputSize; output++)
+			for (int input = 1; input <= dense[layer - 1].inputSize; input++)
 			{
 				file >> word;
 				dense[layer - 1].weight[input - 1][output - 1] = std::stod(word);
-
-				file >> word;
-				dense[layer - 1].bias  [input - 1][output - 1] = std::stod(word);
 			}
+
+			file >> word;
+			dense[layer - 1].bias[output - 1] = std::stod(word);
 		}
 	}
 
@@ -133,28 +137,29 @@ void Network::randomize()
 		for (int x = 0; x < BRD_LEN - convFilterSize + 1; x++)
 		{
 			for (int cy = 0; cy < convFilterSize; cy++)
-			{
 				for (int cx = 0; cx < convFilterSize; cx++)
-				{
 					conv[y][x].weight[cy][cx] = normalDistributionRandom();
-					conv[y][x].bias  [cy][cx] = 0;
-				}
-			}
+
+			conv[y][x].bias = 0;
 		}
 	}
 
 	// dense
 	for (int layer = 0; layer < denseNum; layer++)
 	{
-		for (int input = 0; input < dense[layer].inputSize; input++)
+		for (int output = 0; output < dense[layer].outputSize; output++)
 		{
-			for (int output = 0; output < dense[layer].outputSize; output++)
-			{
+			for (int input = 0; input < dense[layer].inputSize; input++)
 				dense[layer].weight[input][output] = normalDistributionRandom() * sqrt((double)2 / dense[layer].inputSize);
-				dense[layer].bias  [input][output] = 0;
-			}
+
+			dense[layer].bias[output] = 0;
 		}
 	}
+}
+
+double Network::backPropagate(const std::vector<double>& target)
+{
+	return 0;
 }
 
 void Network::saveToFile(std::string fileName) const
@@ -171,14 +176,10 @@ void Network::saveToFile(std::string fileName) const
 			str += ("c " + std::to_string(y) + " " + std::to_string(x) + " "); // conv: (y ~ y + convSize - 1) (x ~ x + convSize - 1)
 
 			for (int cy = 0; cy < convFilterSize; cy++)
-			{
 				for (int cx = 0; cx < convFilterSize; cx++)
-				{
-					str += (std::to_string(conv[y - 1][x - 1].weight[cy][cx]) + " " +
-							std::to_string(conv[y - 1][x - 1].bias  [cy][cx]) + " ");
-				}
-			}
+					str += (std::to_string(conv[y - 1][x - 1].weight[cy][cx]) + " ");
 
+			str += std::to_string(conv[y - 1][x - 1].bias);
 			str += "\n";
 		}
 	}
@@ -186,16 +187,14 @@ void Network::saveToFile(std::string fileName) const
 	//dense layer(s)
 	for (int layer = 1; layer <= denseNum; layer++)
 	{
-		for (int input = 1; input <= dense[layer - 1].inputSize; input++)
+		for (int output = 1; output <= dense[layer - 1].outputSize; output++)
 		{
-			str += ("d " + std::to_string(layer) + " " + std::to_string(input) + " ");	// d + <layer> + <input_idx>
+			str += ("d " + std::to_string(layer) + " " + std::to_string(output) + " ");	// d + <layer> + <output_idx>
 			
-			for (int output = 1; output <= dense[layer - 1].outputSize; output++)
-			{
-				str += (std::to_string(dense[layer - 1].weight[input - 1][output - 1]) + " " +
-						std::to_string(dense[layer - 1].bias  [input - 1][output - 1]) + " ");
-			}
+			for (int input = 1; input <= dense[layer - 1].inputSize; input++)
+				str += (std::to_string(dense[layer - 1].weight[input - 1][output - 1]) + " ");
 
+			str += std::to_string(dense[layer - 1].bias[output - 1]);
 			str += "\n";
 		}
 	}
@@ -221,8 +220,9 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 
 			for (int cy = 0; cy < convFilterSize; cy++)
 				for (int cx = 0; cx < convFilterSize; cx++)
-					filterOutput += (board[y + cy][x + cx] * conv[y][x].weight[cy][cx] + conv[y][x].bias[cy][cx]);
+					filterOutput += (board[y + cy][x + cx] * conv[y][x].weight[cy][cx]);
 
+			filterOutput += conv[y][x].bias;
 			out.push_back(activation(filterOutput));
 		}
 	}
@@ -233,10 +233,10 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 	// dense
 	// hidden layers
 	for (int i = 0; i < denseNum - 1; i++)
-		out = dense[i].output(out, activation);
+		out = dense[i].forward(out, activation);
 
 	// no activation function for last layer
-	out = dense[denseNum - 1].output(out, Linear);
+	out = dense[denseNum - 1].forward(out, Linear);
 
 	return out;
 }

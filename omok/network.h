@@ -7,7 +7,7 @@ class Convolutional
 public:
 	int size;
 	std::vector<std::vector<double>> weight;
-	std::vector<std::vector<double>> bias;
+	double bias;
 
 	Convolutional(int _size);
 };
@@ -17,12 +17,12 @@ class Dense
 public:
 	int inputSize, outputSize;
 	std::vector<std::vector<double>> weight;
-	std::vector<std::vector<double>> bias;
+	std::vector<double> bias;
 
 	Dense();
 	Dense(int input, int output);
 
-	std::vector<double> output(const std::vector<double>& input, double (*activation)(double)) const;
+	std::vector<double> forward(const std::vector<double>& input, double (*activation)(double)) const;
 };
 
 class Network
@@ -36,6 +36,8 @@ private:
 
 	void initMemory(int _convFilterSize, int _denseNum);
 	void randomize();
+
+	double backPropagate(const std::vector<double>& target);
 
 public:
 	Network(int _convFilterSize, int _denseNum);
