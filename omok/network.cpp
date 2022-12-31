@@ -209,6 +209,7 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 {
 	std::vector<double> out;
 
+	// conv
 	for (int y = 0; y < BRD_LEN - convFilterSize + 1; y++)
 	{
 		for (int x = 0; x < BRD_LEN - convFilterSize + 1; x++)
@@ -224,7 +225,9 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 	}
 
 	out.push_back(moveNum);
+	ASSERT(out.size() == dense[0].inputSize);
 
+	// dense
 	for (int i = 0; i < denseNum; i++)
 		out = dense[i].output(out);
 
