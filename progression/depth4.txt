@@ -1,3 +1,5 @@
 generateMoveSetByEval 기준
 
 internal board eval -> 85005 nodes, eval: 1?
+
+initial_random.nn -> 335623 nodes, eval: 49.35% for black

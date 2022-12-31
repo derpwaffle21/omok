@@ -26,7 +26,7 @@ Dense::Dense(int input, int output) : inputSize(input), outputSize(output)
 	bias   = std::vector<std::vector<double>>(inputSize, std::vector<double>(outputSize));
 }
 
-std::vector<double> Dense::output(const std::vector<double>& input) const
+std::vector<double> Dense::output(const std::vector<double>& input, bool activationFunction) const
 {
 	std::vector<double> out(outputSize);
 
@@ -34,8 +34,12 @@ std::vector<double> Dense::output(const std::vector<double>& input) const
 		for (int j = 0; j < inputSize; j++)
 			out[i] += (input[j] * weight[j][i] + bias[j][i]);
 
-	for (int i = 0; i < outputSize; i++)
-		out[i] = activate(out[i]);
+	if (activationFunction)
+	{
+		for (int i = 0; i < outputSize; i++)
+			out[i] = activate(out[i]);
+	}
+
 
 	return out;
 }
@@ -236,8 +240,12 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 	ASSERT(out.size() == dense[0].inputSize);
 
 	// dense
-	for (int i = 0; i < denseNum; i++)
-		out = dense[i].output(out);
+	// hidden layers
+	for (int i = 0; i < denseNum - 1; i++)
+		out = dense[i].output(out, true);
+
+	// no activation function for last layer
+	out = dense[denseNum - 1].output(out, false);
 
 	return out;
 }

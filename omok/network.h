@@ -24,7 +24,7 @@ public:
 	Dense();
 	Dense(int input, int output);
 
-	std::vector<double> output(const std::vector<double>& input) const;
+	std::vector<double> output(const std::vector<double>& input, bool activationFunction) const;
 };
 
 class Network
