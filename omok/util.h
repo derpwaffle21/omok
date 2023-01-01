@@ -6,7 +6,7 @@
 
 #include "board.h"
 
-//#define DEBUG
+#define DEBUG
 
 #ifndef DEBUG
 #define ASSERT(n)
@@ -34,9 +34,13 @@ void saveGameToFile(const Board& board, std::string fileName);
 void saveStringToFile(const std::string& gameString, std::string fileName);
 void generateRandomGame(Board& board, bool printBoard = false);
 
+void shuffleVector(std::vector<int>& v);
+double sum(const std::vector<double>& v);
+
 double Linear(double x);
 double LinearDerivative(double x);
 double ReLU(double x);
+double ReLUDerivative(double x);
 double Sigmoid(double x);
 double SigmoidDerivative(double x);
 std::vector<double> Softmax(const std::vector<double>& x);

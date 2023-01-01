@@ -73,7 +73,7 @@ void generateRandomGame(Board& board, bool printBoard)
             availableMoves.push_back(idx);
     }
 
-    std::shuffle(availableMoves.begin(), availableMoves.end(), rng);
+    shuffleVector(availableMoves);
 
     for (auto& idx : availableMoves)
     {
@@ -92,6 +92,21 @@ void generateRandomGame(Board& board, bool printBoard)
     }
 }
 
+void shuffleVector(std::vector<int>& v)
+{
+    std::shuffle(v.begin(), v.end(), rng);
+}
+
+double sum(const std::vector<double>& v)
+{
+    double result = 0;
+
+    for (auto value : v)
+        result += value;
+
+    return result;
+}
+
 double Linear(double x)
 {
     return x;
@@ -108,6 +123,14 @@ double ReLU(double x)
         return 0;
 
     return x;
+}
+
+double ReLUDerivative(double x)
+{
+    if (x < 0)
+        return 0;
+
+    return 1;
 }
 
 double Sigmoid(double x)
