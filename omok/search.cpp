@@ -3,7 +3,7 @@
 
 #include "search.h"
 
-Network baseNetwork("random_500.nn");
+Network baseNetwork("initial_random.nn");
 
 // when BRD_LEN % 2 == 1
 std::vector<int> generateMoveSetByPos(const Board& _board, int color)
@@ -110,7 +110,15 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, in
 
 int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& info, int color, int depth, int temp)
 {
-	if (searchDepth == depth || _board.state != BoardState::UNF)
+	if (_board.state != BoardState::UNF)
+	{
+		if (color == BLACK)
+			return evaluate(_board, baseNetwork);		// eval * 10000 causes an overflow
+		else
+			return -evaluate(_board, baseNetwork);
+	}
+
+	if (searchDepth == depth)
 	{
 		int changeByTemp = randomInt(temp * 2) - temp;
 

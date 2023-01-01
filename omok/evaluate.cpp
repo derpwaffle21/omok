@@ -10,10 +10,7 @@ double evaluate(const Board& _board, const Network& network)
 	double eval;
 
 	if (_board.state == BoardState::B_WIN)
-	{
 		eval = MAX_EVAL;
-		//_board.printBoard(true);
-	}
 	else if (_board.state == BoardState::W_WIN)
 		eval = -MAX_EVAL;
 	else if (_board.state == BoardState::DRAW)
