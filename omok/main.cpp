@@ -44,16 +44,16 @@ void playGame(int depth)
 				std::cout << "White" << std::endl;
 
 			int x, y;
-			std::cout << std::endl << "input your x, y coord with a space between(example: 7 7), -1 to undo a move: ";
-			std::cin >> x;
+			std::cout << std::endl << "input your y, x coord with a space between(example: 7 7), -1 to undo a move: ";
+			std::cin >> y;
 
-			if (x == -1)
+			if (y == -1)
 			{
 				b.undoMove(); b.undoMove();
 				continue;
 			}
 
-			std::cin >> y;
+			std::cin >> x;
 
 			if (x <= 0 || x > BRD_LEN || y <= 0 || y > BRD_LEN)
 			{
@@ -139,7 +139,7 @@ int main(void)
 
 	nn.saveToFile("nn.txt");*/
 
-	Network nn("initial_random.nn");
+	Network nn("random_20000.nn");
 	Board board;
 
 	board.makeMove(coordToIdx(std::make_pair(7, 7)));
@@ -155,26 +155,26 @@ int main(void)
 	std::cout << prob.size() << std::endl;
 	std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
 
-	bool train = true;
+	bool train = false;
 
 	if (train)
 	{
 		Board board;
 
-		for (int i = 0; i < 500000; i++)
+		for (int i = 0; i < 20000; i++)
 		{
 			if (i % 1000 == 0)
 				std::cout << "game: " << i << std::endl;
 
 			generateRandomGame(board);
-			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.000005);
+			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.0001);
 			board.clear();
 		}
 	}
 
-	nn.saveToFile("random_500000.nn");
+	//nn.saveToFile("random_20000.nn");
 
-	//playGame(4);
+	playGame(4);
 
 	return 0;
 }

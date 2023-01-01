@@ -1,1 +1,0 @@
-initial_500000 -> 500000 random games, lr = 0.000005
