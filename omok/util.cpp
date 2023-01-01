@@ -97,6 +97,11 @@ double Linear(double x)
     return x;
 }
 
+double LinearDerivative(double x)
+{
+    return 1;
+}
+
 double ReLU(double x)
 {
     if (x < 0)

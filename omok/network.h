@@ -23,6 +23,7 @@ public:
 	Dense(int input, int output);
 
 	std::vector<double> forward(const std::vector<double>& input, double (*activation)(double)) const;
+	std::vector<double> backward(const std::vector<double>& delta, double (*activationDerivative)(double)) const;
 };
 
 class Network
@@ -37,8 +38,6 @@ private:
 	void initMemory(int _convFilterSize, int _denseNum);
 	void randomize();
 
-	double backPropagate(const std::vector<double>& target);
-
 public:
 	Network(int _convFilterSize, int _denseNum);
 	Network(std::string networkFile);
@@ -46,4 +45,9 @@ public:
 	void saveToFile(std::string fileName) const;
 	std::vector<double> evaluate(const Board& board, double (*activation)(double)) const;
 	std::vector<double> evaluate(const std::vector<std::vector<int>>& board, int moveNum, double (*activation)(double)) const;
+
+	void backPropagate(const std::vector<std::vector<int>>& initialInput, int moveNum, const std::vector<double>& target,
+		double (*activation)(double), double(*activationDerivative)(double), double lr);
+
+	void trainGame(const Board& finishedBoard, double (*activation)(double), double(*activationDerivative)(double), double lr);
 };

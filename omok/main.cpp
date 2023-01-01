@@ -127,27 +127,38 @@ int main(void)
 
 	nn.saveToFile("nn.txt");*/
 
-	/*
 	Network nn("initial_random.nn");
 	Board board;
 
 	board.makeMove(coordToIdx(std::make_pair(7, 7)));
 
 	std::vector<double> output;
-	output = nn.evaluate(board.get2DVector(), board.getHist().size());
+	output = nn.evaluate(board.get2DVector(), board.getHist().size(), Sigmoid);
 
 	std::cout << output.size() << std::endl;
-	std::cout << output[0] << ", " << output[1] << ", " << output[2] << std::endl;
+	std::cout << "eval: " << output[0] << ", " << output[1] << ", " << output[2] << std::endl;
 
 	std::vector<double> prob = Softmax(output);
 
 	std::cout << prob.size() << std::endl;
-	std::cout << prob[0] << ", " << prob[1] << ", " << prob[2] << std::endl;*/
+	std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
 
+	bool train = true;
 
-	playGame(4);
+	if (train)
+	{
+		Board board;
 
-	
+		for (int i = 0; i < 10000; i++)
+		{
+			if (i % 1000 == 0)
+				std::cout << "game: " << i << std::endl;
+
+			generateRandomGame(board);
+			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.02);
+			board.clear();
+		}
+	}
 
 	return 0;
 }

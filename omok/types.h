@@ -17,7 +17,7 @@ enum
 
 enum class BoardState
 {
-	B_WIN = -1,
+	B_WIN = 0,
 	DRAW,
 	W_WIN,
 	UNF,	//unfinished
