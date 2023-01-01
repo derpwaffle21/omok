@@ -3,7 +3,7 @@
 
 #include "search.h"
 
-Network baseNetwork("random_1M_3.nn");
+Network baseNetwork("test.nn");
 
 // when BRD_LEN % 2 == 1
 std::vector<int> generateMoveSetByPos(const Board& _board, int color)

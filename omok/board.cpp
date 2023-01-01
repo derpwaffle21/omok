@@ -80,7 +80,7 @@ void Board::makeMove(int idx)
 
 	if (getTurn() == BLACK)
 		board[coord.first - 1][coord.second - 1] = 1;
-	else		  // WHITE
+	else		   // WHITE
 		board[coord.first - 1][coord.second - 1] = -1;
 
 	std::pair<bool, int> chkMove = checkMove(idx);
