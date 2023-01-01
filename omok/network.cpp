@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iostream>
 
 #include "network.h"
 #include "util.h"
@@ -23,6 +24,8 @@ Dense::Dense(int input, int output) : inputSize(input), outputSize(output)
 
 std::vector<double> Dense::forward(const std::vector<double>& input, double (*activation)(double)) const
 {
+	ASSERT(input.size() == inputSize);
+
 	std::vector<double> out(outputSize);
 
 	for (int i = 0; i < outputSize; i++)
@@ -37,6 +40,25 @@ std::vector<double> Dense::forward(const std::vector<double>& input, double (*ac
 		out[i] = activation(out[i]);
 
 	return out;
+}
+
+std::vector<double> Dense::backward(const std::vector<double>& delta, double(*activationDerivative)(double)) const
+{
+	ASSERT(delta.size() == outputSize);
+
+	std::cout << delta.size() << " size" << std::endl;
+	
+	std::vector<double> nextDelta(inputSize);
+
+	for (int i = 0; i < inputSize; i++)
+	{
+		for (int j = 0; j < delta.size(); j++)	// delta.size() == outputSize
+			nextDelta[i] += (delta[j] * weight[i][j]);
+
+		nextDelta[i] = activationDerivative(nextDelta[i]);
+	}
+
+	std::cout << nextDelta.size() << " size" << std::endl;
 }
 
 Network::Network(int _convFilterSize, int _denseNum) : convFilterSize(_convFilterSize), denseNum(_denseNum)
@@ -58,9 +80,11 @@ Network::Network(std::string networkFile)
 
 	initMemory(convFilterSize, denseNum);
 
-	for (int y = 1; y <= BRD_LEN - convFilterSize + 1; y++)
+	int cnnLen = BRD_LEN - convFilterSize + 1;
+
+	for (int y = 1; y <= cnnLen; y++)
 	{
-		for (int x = 1; x <= BRD_LEN - convFilterSize + 1; x++)
+		for (int x = 1; x <= cnnLen; x++)
 		{
 			file >> word;	// "c"
 			ASSERT(word == "c");
@@ -96,7 +120,7 @@ Network::Network(std::string networkFile)
 			ASSERT(std::stoi(word) == layer);
 
 			file >> word;
-			ASSERT(std::stoi(word) == input);
+			ASSERT(std::stoi(word) == output);
 
 			for (int input = 1; input <= dense[layer - 1].inputSize; input++)
 			{
@@ -157,21 +181,18 @@ void Network::randomize()
 	}
 }
 
-double Network::backPropagate(const std::vector<double>& target)
-{
-	return 0;
-}
-
 void Network::saveToFile(std::string fileName) const
 {
 	std::string str;
 
 	str += (std::to_string(convFilterSize) + " " + std::to_string(denseNum) + "\n");
 
+	int cnnLen = BRD_LEN - convFilterSize + 1;
+
 	//conv layer
-	for (int y = 1; y <= BRD_LEN - convFilterSize + 1; y++)
+	for (int y = 1; y <= cnnLen; y++)
 	{
-		for (int x = 1; x <= BRD_LEN - convFilterSize + 1; x++)
+		for (int x = 1; x <= cnnLen; x++)
 		{
 			str += ("c " + std::to_string(y) + " " + std::to_string(x) + " "); // conv: (y ~ y + convSize - 1) (x ~ x + convSize - 1)
 
@@ -210,11 +231,12 @@ std::vector<double> Network::evaluate(const Board& board, double (*activation)(d
 std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board, int moveNum, double (*activation)(double)) const
 {
 	std::vector<double> out;
+	int cnnLen = BRD_LEN - convFilterSize + 1;
 
 	// conv
-	for (int y = 0; y < BRD_LEN - convFilterSize + 1; y++)
+	for (int y = 0; y < cnnLen; y++)
 	{
-		for (int x = 0; x < BRD_LEN - convFilterSize + 1; x++)
+		for (int x = 0; x < cnnLen; x++)
 		{
 			double filterOutput = 0;
 
@@ -239,4 +261,118 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 	out = dense[denseNum - 1].forward(out, Linear);
 
 	return out;
+}
+
+void Network::backPropagate(const std::vector<std::vector<int>>& initialInput, int moveNum, const std::vector<double>& target,
+	double (*activation)(double), double(*activationDerivative)(double), double lr)
+{
+	// TODO: ¸ð¸àÅÒ(momentum) °è¼ö Ãß°¡
+
+	std::vector<std::vector<double>> denseInput(denseNum);
+	int cnnLen = BRD_LEN - convFilterSize + 1;
+
+	//same as evalutate
+	for (int y = 0; y < cnnLen; y++)
+	{
+		for (int x = 0; x < cnnLen; x++)
+		{
+			double filterOutput = 0;
+
+			for (int cy = 0; cy < convFilterSize; cy++)
+				for (int cx = 0; cx < convFilterSize; cx++)
+					filterOutput += (initialInput[y + cy][x + cx] * conv[y][x].weight[cy][cx]);
+
+			filterOutput += conv[y][x].bias;
+			denseInput[0].push_back(activation(filterOutput));
+		}
+	}
+
+	denseInput[0].push_back(moveNum);
+
+	for (int i = 0; i < denseNum - 1; i++)
+		denseInput[i + 1] = dense[i].forward(denseInput[i], activation);
+
+	for (int i = 0; i < denseNum; i++)
+		ASSERT(denseInput[i].size() == dense[i].inputSize);
+
+	std::vector<double> networkOutput = dense[denseNum - 1].forward(denseInput[denseNum - 1], Linear);
+	std::vector<double> prob = Softmax(networkOutput);
+
+	ASSERT(prob.size() == 3);
+
+	// (1 + denseNum) deltas for two 65 node layers and the output layer
+	std::vector<std::vector<double>> delta(1 + denseNum, std::vector<double>());
+
+	// for output layer
+	delta[denseNum] = std::vector<double>(3);
+
+	// derivative of Cross Entropy Error of Softmax = value - target
+	for (int i = 0; i < 3; i++)
+		delta[denseNum][i] = prob[i] - target[i];
+
+	for (int i = denseNum - 1; i >= 0; i--)
+	{
+		//std::cout << i << std::endl;
+		//std::cout << dense.size() << ", " << delta.size() << std::endl;
+		//delta[i].resize(cnnLen * cnnLen + 1);
+		// 
+		delta[i] = dense[i].backward(delta[i + 1], activationDerivative);
+		//std::vector<double> a = dense[i].backward(delta[i + 1], activationDerivative);
+		//std::cout << i << std::endl;
+	}
+
+	delta[0].pop_back();		// no use for delta of moveNum (delta[0][64])
+
+	// use delta[1] ~ delta[denseNum], denseInput to update weights and bias of dense layers
+	for (int i = denseNum - 1; i >= 0; i--)
+	{
+		for (int output = 0; output < dense[i].outputSize; output++)
+		{
+			for (int input = 0; input < dense[i].inputSize; input++)
+			{
+				double gradient = denseInput[i][input] * delta[i + 1][output];
+				dense[i].weight[input][output] -= (lr * gradient);
+			}
+
+			dense[i].bias[output] -= (lr * delta[i + 1][output]);
+		}
+	}
+	
+	// use delta[0], initialInput(board) to update weights and bias of CNN
+	for (int y = 0; y < cnnLen; y++)
+	{
+		for (int x = 0; x < cnnLen; x++)
+		{
+			for (int cy = 0; cy < convFilterSize; cy++)
+			{
+				for (int cx = 0; cx < convFilterSize; cx++)
+				{
+					double gradient = initialInput[y + cy][x + cx] * delta[0][y * cnnLen + x];
+					conv[y][x].weight[cy][cx] -= (lr * gradient);
+				}
+			}
+
+			conv[y][x].bias -= (lr * delta[0][y * cnnLen + x]);
+		}
+	}
+}
+
+void Network::trainGame(const Board& finishedBoard, double (*activation)(double), double(*activationDerivative)(double), double lr)
+{
+	ASSERT(finishedBoard.state != BoardState::UNF);
+
+	Board board;
+	const std::vector<int>& hist = finishedBoard.getHist();
+	std::vector<double> target(3);
+
+	// BLACK_WIN = { 1, 0, 0 }, DRAW = { 0, 1, 0 }, WHITE_WIN = { 0, 0, 1 }
+	target[(int)finishedBoard.state] = 1;
+
+	for (int moveNum = 0; moveNum < hist.size(); moveNum++)
+	{
+		backPropagate(board.get2DVector(), moveNum, target, activation, activationDerivative, lr);
+		board.makeMove(hist[moveNum]);
+	}
+
+	backPropagate(board.get2DVector(), hist.size(), target, activation, activationDerivative, lr);
 }

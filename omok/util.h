@@ -6,7 +6,7 @@
 
 #include "board.h"
 
-//#define DEBUG
+#define DEBUG
 
 #ifndef DEBUG
 #define ASSERT(n)
@@ -35,6 +35,7 @@ void saveStringToFile(const std::string& gameString, std::string fileName);
 void generateRandomGame(Board& board, bool printBoard = false);
 
 double Linear(double x);
+double LinearDerivative(double x);
 double ReLU(double x);
 double Sigmoid(double x);
 double SigmoidDerivative(double x);
