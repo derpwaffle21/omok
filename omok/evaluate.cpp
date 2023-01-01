@@ -10,7 +10,10 @@ double evaluate(const Board& _board, const Network& network)
 	double eval;
 
 	if (_board.state == BoardState::B_WIN)
+	{
 		eval = MAX_EVAL;
+		//_board.printBoard(true);
+	}
 	else if (_board.state == BoardState::W_WIN)
 		eval = -MAX_EVAL;
 	else if (_board.state == BoardState::DRAW)
@@ -21,6 +24,8 @@ double evaluate(const Board& _board, const Network& network)
 
 		// prob[0] = BLACK_WIN, prob[1] = DRAW, prob[2] = WHITE_WIN
 		eval = 1 * prob[0] + 0.5 * prob[1] + 0 * prob[2];
+
+		ASSERT(abs(eval) < MAX_EVAL);
 	}
 
 	return eval;

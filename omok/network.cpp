@@ -1,5 +1,4 @@
 #include <fstream>
-#include <iostream>
 
 #include "network.h"
 #include "util.h"
@@ -45,8 +44,6 @@ std::vector<double> Dense::forward(const std::vector<double>& input, double (*ac
 std::vector<double> Dense::backward(const std::vector<double>& delta, double(*activationDerivative)(double)) const
 {
 	ASSERT(delta.size() == outputSize);
-
-	std::cout << delta.size() << " size" << std::endl;
 	
 	std::vector<double> nextDelta(inputSize);
 
@@ -58,7 +55,7 @@ std::vector<double> Dense::backward(const std::vector<double>& delta, double(*ac
 		nextDelta[i] = activationDerivative(nextDelta[i]);
 	}
 
-	std::cout << nextDelta.size() << " size" << std::endl;
+	return nextDelta;
 }
 
 Network::Network(int _convFilterSize, int _denseNum) : convFilterSize(_convFilterSize), denseNum(_denseNum)
@@ -311,15 +308,7 @@ void Network::backPropagate(const std::vector<std::vector<int>>& initialInput, i
 		delta[denseNum][i] = prob[i] - target[i];
 
 	for (int i = denseNum - 1; i >= 0; i--)
-	{
-		//std::cout << i << std::endl;
-		//std::cout << dense.size() << ", " << delta.size() << std::endl;
-		//delta[i].resize(cnnLen * cnnLen + 1);
-		// 
 		delta[i] = dense[i].backward(delta[i + 1], activationDerivative);
-		//std::vector<double> a = dense[i].backward(delta[i + 1], activationDerivative);
-		//std::cout << i << std::endl;
-	}
 
 	delta[0].pop_back();		// no use for delta of moveNum (delta[0][64])
 
