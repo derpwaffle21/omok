@@ -87,7 +87,19 @@ void playGame(int depth)
 			std::pair<int, int> coord = idxToCoord(bestMove);
 			std::cout << "depth: " << depth << std::endl;
 			std::cout << "move (" << coord.second << ", " << coord.first << ")" << std::endl;
-			std::cout << "eval: " << abs((double)score / 100) << "% for black" << std::endl;
+
+			if (abs((double)score / 100) > 100)
+			{
+				if (((score > 0) && playerColor == WHITE) || ((score < 0) && playerColor == BLACK))
+					std::cout << "BLACK WINS" << std::endl;
+				else
+					std::cout << "WHITE WINS" << std::endl;
+			}
+			else
+			{
+				std::cout << "eval: " << abs((double)score / 100) << "% for black" << std::endl;
+			}
+
 			std::cout << "nodes: " << info.nodes << std::endl;
 		}
 
@@ -127,7 +139,7 @@ int main(void)
 
 	nn.saveToFile("nn.txt");*/
 
-	Network nn("random_500.nn");
+	Network nn("initial_random.nn");
 	Board board;
 
 	board.makeMove(coordToIdx(std::make_pair(7, 7)));
@@ -143,26 +155,26 @@ int main(void)
 	std::cout << prob.size() << std::endl;
 	std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
 
-	bool train = false;
+	bool train = true;
 
 	if (train)
 	{
 		Board board;
 
-		for (int i = 0; i < 10000; i++)
+		for (int i = 0; i < 500000; i++)
 		{
 			if (i % 1000 == 0)
 				std::cout << "game: " << i << std::endl;
 
 			generateRandomGame(board);
-			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.00001);
+			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.000005);
 			board.clear();
 		}
 	}
 
-	//nn.saveToFile("random_500.nn");
+	nn.saveToFile("random_500000.nn");
 
-	playGame(3);
+	//playGame(4);
 
 	return 0;
 }
