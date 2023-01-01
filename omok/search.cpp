@@ -3,7 +3,7 @@
 
 #include "search.h"
 
-Network baseNetwork("initial_random.nn");
+Network baseNetwork("random_20000.nn");
 
 // when BRD_LEN % 2 == 1
 std::vector<int> generateMoveSetByPos(const Board& _board, int color)
@@ -113,7 +113,7 @@ int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& i
 	if (_board.state != BoardState::UNF)
 	{
 		if (color == BLACK)
-			return evaluate(_board, baseNetwork);		// eval * 10000 causes an overflow
+			return evaluate(_board, baseNetwork);		// MAX_EVAL * 10000 causes an overflow
 		else
 			return -evaluate(_board, baseNetwork);
 	}
