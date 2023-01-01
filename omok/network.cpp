@@ -7,6 +7,7 @@
 Convolutional::Convolutional()
 {
 	bias = 0;
+	size = 0;
 }
 
 Convolutional::Convolutional(int _size) : size(_size)
@@ -306,12 +307,6 @@ void Network::backPropagate(const std::vector<std::vector<int>>& initialInput, i
 			dense[i].bias[output] -= (lr * delta[i + 1][output]);
 		}
 	}
-
-	/*
-	for (int i = 0; i < 64; i++)
-		std::cout << "delta[0][" << i << "] = " << delta[0][i] << std::endl;
-
-	std::cout << sum(delta[0]) << std::endl;*/
 	
 	// use delta[0], initialInput(board) to update weights and bias of CNN
 	for (int cy = 0; cy < convFilterSize; cy++)

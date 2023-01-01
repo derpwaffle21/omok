@@ -135,12 +135,11 @@ int main(void)
 	}*/
 
 	
-	Network nn("random_1M.nn");
+	Network nn("test.nn");
 	Board board;
 	
 	board.makeMove(coordToIdx(std::make_pair(7, 7)));
 	
-
 	std::vector<double> output;
 	output = nn.evaluate(board.get2DVector(), board.getHist().size(), Sigmoid);
 
@@ -156,6 +155,7 @@ int main(void)
 	//board.makeMove(coordToIdx(std::make_pair(7, 6)));
 	//board.makeMove(coordToIdx(std::make_pair(6, 7)));
 
+
 	output = nn.evaluate(board.get2DVector(), board.getHist().size(), Sigmoid);
 
 	std::cout << output.size() << std::endl;
@@ -165,7 +165,7 @@ int main(void)
 
 	std::cout << prob.size() << std::endl;
 	std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
-	std::cout << CrossEntropyError({ 1, 0, 0 }, { 0.2, 0.6, 0.2 });
+
 
 	bool train = false;
 
@@ -176,9 +176,9 @@ int main(void)
 		Board board;
 		std::cout << std::fixed;
 
-		for (int i = 0; i < 1000000; i++)
+		for (int i = 0; i < 10000; i++)
 		{
-			if (i % 10000 == 0)
+			if (i % 1000 == 0)
 			{
 				//ASSERT(abs(nn.conv.bias))
 
@@ -200,12 +200,14 @@ int main(void)
 				std::cout << it << ' ';
 			std::cout << std::endl;*/
 
-			nn.backPropagate(board.get2DVector(), board.getHist().size(), target, Sigmoid, SigmoidDerivative, 0.01);
+			//nn.backPropagate(board.get2DVector(), board.getHist().size(), target, Sigmoid, SigmoidDerivative, 0.01);
+
+			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.0005);
 			board.clear();
 		}
 	}
 
-	//nn.saveToFile("random_1M.nn");
+	//nn.saveToFile("test.nn");
 
 	playGame(4);
 
