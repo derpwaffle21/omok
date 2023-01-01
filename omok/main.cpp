@@ -127,7 +127,7 @@ int main(void)
 
 	nn.saveToFile("nn.txt");*/
 
-	Network nn("initial_random.nn");
+	Network nn("random_500.nn");
 	Board board;
 
 	board.makeMove(coordToIdx(std::make_pair(7, 7)));
@@ -143,7 +143,7 @@ int main(void)
 	std::cout << prob.size() << std::endl;
 	std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
 
-	bool train = true;
+	bool train = false;
 
 	if (train)
 	{
@@ -155,10 +155,14 @@ int main(void)
 				std::cout << "game: " << i << std::endl;
 
 			generateRandomGame(board);
-			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.02);
+			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.00001);
 			board.clear();
 		}
 	}
+
+	//nn.saveToFile("random_500.nn");
+
+	playGame(3);
 
 	return 0;
 }
