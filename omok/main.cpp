@@ -134,15 +134,12 @@ int main(void)
 		str += std::string(b);
 	}*/
 
-	/*
-	Network nn(6, 2);
-
-	nn.saveToFile("nn.txt");*/
-
-	Network nn("random_20000.nn");
+	
+	Network nn("initial_random.nn");
 	Board board;
-
+	
 	board.makeMove(coordToIdx(std::make_pair(7, 7)));
+	
 
 	std::vector<double> output;
 	output = nn.evaluate(board.get2DVector(), board.getHist().size(), Sigmoid);
@@ -155,24 +152,72 @@ int main(void)
 	std::cout << prob.size() << std::endl;
 	std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
 
+	board.makeMove(coordToIdx(std::make_pair(7, 8)));
+	//board.makeMove(coordToIdx(std::make_pair(7, 6)));
+	//board.makeMove(coordToIdx(std::make_pair(6, 7)));
+
+	output = nn.evaluate(board.get2DVector(), board.getHist().size(), Sigmoid);
+
+	std::cout << output.size() << std::endl;
+	std::cout << "eval: " << output[0] << ", " << output[1] << ", " << output[2] << std::endl;
+
+	prob = Softmax(output);
+
+	std::cout << prob.size() << std::endl;
+	std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
+	/*
+	board.undoMove();
+
+	for (int i = 1; i <= 13; i++)
+	{
+		for (int j = 1; j <= 13; j++)
+		{
+			board.makeMove(coordToIdx(std::make_pair(i, j)));
+			output = nn.evaluate(board.get2DVector(), board.getHist().size(), Sigmoid);
+			//board.printBoard(false);
+
+			std::cout << output.size() << std::endl;
+			std::cout << "eval: " << output[0] << ", " << output[1] << ", " << output[2] << std::endl;
+
+			std::cout << prob.size() << std::endl;
+			std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
+
+			board.undoMove();
+		}
+	}*/
 	bool train = false;
+
+	//double prevCB, prevCW, prevDB
 
 	if (train)
 	{
 		Board board;
+		std::cout << std::fixed;
 
-		for (int i = 0; i < 20000; i++)
+		for (int i = 0; i < 1000000; i++)
 		{
-			if (i % 1000 == 0)
+			if (i % 10000 == 0)
+			{
+				//ASSERT(abs(nn.conv.bias))
+
 				std::cout << "game: " << i << std::endl;
+				std::cout << "conv bias: " << nn.conv.bias << std::endl;
+				std::cout << "conv weight: " << nn.conv.weight[0][0] << std::endl;
+				std::cout << "dense bias: " << nn.dense[0].bias[0] << std::endl;
+			}
 
 			generateRandomGame(board);
-			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.0001);
+
+			std::vector<double> target(3);
+
+			target[(int)board.state] = 1;
+
+			nn.backPropagate(board.get2DVector(), board.getHist().size(), target, Sigmoid, SigmoidDerivative, 0.1);
 			board.clear();
 		}
 	}
 
-	//nn.saveToFile("random_20000.nn");
+	//nn.saveToFile("random_10000.nn");
 
 	playGame(4);
 

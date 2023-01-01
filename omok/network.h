@@ -9,6 +9,7 @@ public:
 	std::vector<std::vector<double>> weight;
 	double bias;
 
+	Convolutional();
 	Convolutional(int _size);
 };
 
@@ -28,11 +29,11 @@ public:
 
 class Network
 {
-private:
+public:
 	int convFilterSize;
 	int denseNum;
 
-	std::vector<std::vector<Convolutional>> conv;
+	Convolutional conv;
 	std::vector<Dense> dense;
 
 	void initMemory(int _convFilterSize, int _denseNum);
