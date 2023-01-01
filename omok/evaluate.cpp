@@ -22,9 +22,6 @@ double evaluate(const Board& _board, const Network& network)
 		// prob[0] = BLACK_WIN, prob[1] = DRAW, prob[2] = WHITE_WIN
 		eval = 1 * prob[0] + 0.5 * prob[1] + 0 * prob[2];
 
-		if (prob[0] >= 0.35 || prob[0] <= 0.3)
-			_board.printBoard(false);
-
 		ASSERT(abs(eval) < MAX_EVAL);
 	}
 

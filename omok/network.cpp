@@ -47,9 +47,10 @@ std::vector<double> Dense::forward(const std::vector<double>& input, double (*ac
 	return out;
 }
 
-std::vector<double> Dense::backward(const std::vector<double>& delta, double(*activationDerivative)(double)) const
+std::vector<double> Dense::backward(const std::vector<double>& delta, const std::vector<double>& inputs, double(*activationDerivative)(double)) const
 {
 	ASSERT(delta.size() == outputSize);
+	ASSERT(inputs.size() == inputSize);
 	
 	std::vector<double> nextDelta(inputSize);
 
@@ -58,7 +59,7 @@ std::vector<double> Dense::backward(const std::vector<double>& delta, double(*ac
 		for (int j = 0; j < delta.size(); j++)	// delta.size() == outputSize
 			nextDelta[i] += (delta[j] * weight[i][j]);
 
-		nextDelta[i] = activationDerivative(nextDelta[i]);
+		nextDelta[i] *= activationDerivative(inputs[i]);
 	}
 
 	return nextDelta;
@@ -284,10 +285,10 @@ void Network::backPropagate(const std::vector<std::vector<int>>& initialInput, i
 
 	// derivative of Cross Entropy Error of Softmax = value - target
 	for (int i = 0; i < 3; i++)
-		delta[denseNum][i] = prob[i] - target[i];
+		delta[denseNum][i] = (prob[i] - target[i]);
 
 	for (int i = denseNum - 1; i >= 0; i--)
-		delta[i] = dense[i].backward(delta[i + 1], activationDerivative);
+		delta[i] = dense[i].backward(delta[i + 1], denseInput[i], activationDerivative);
 
 	delta[0].pop_back();		// no use for delta of moveNum (delta[0][64])
 

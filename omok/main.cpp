@@ -135,7 +135,7 @@ int main(void)
 	}*/
 
 	
-	Network nn("initial_random.nn");
+	Network nn("random_1M.nn");
 	Board board;
 	
 	board.makeMove(coordToIdx(std::make_pair(7, 7)));
@@ -165,26 +165,8 @@ int main(void)
 
 	std::cout << prob.size() << std::endl;
 	std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
-	/*
-	board.undoMove();
+	std::cout << CrossEntropyError({ 1, 0, 0 }, { 0.2, 0.6, 0.2 });
 
-	for (int i = 1; i <= 13; i++)
-	{
-		for (int j = 1; j <= 13; j++)
-		{
-			board.makeMove(coordToIdx(std::make_pair(i, j)));
-			output = nn.evaluate(board.get2DVector(), board.getHist().size(), Sigmoid);
-			//board.printBoard(false);
-
-			std::cout << output.size() << std::endl;
-			std::cout << "eval: " << output[0] << ", " << output[1] << ", " << output[2] << std::endl;
-
-			std::cout << prob.size() << std::endl;
-			std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
-
-			board.undoMove();
-		}
-	}*/
 	bool train = false;
 
 	//double prevCB, prevCW, prevDB
@@ -209,15 +191,21 @@ int main(void)
 			generateRandomGame(board);
 
 			std::vector<double> target(3);
+			//board.printBoard(false);
 
 			target[(int)board.state] = 1;
 
-			nn.backPropagate(board.get2DVector(), board.getHist().size(), target, Sigmoid, SigmoidDerivative, 0.1);
+			/*
+			for (auto& it : target)
+				std::cout << it << ' ';
+			std::cout << std::endl;*/
+
+			nn.backPropagate(board.get2DVector(), board.getHist().size(), target, Sigmoid, SigmoidDerivative, 0.01);
 			board.clear();
 		}
 	}
 
-	//nn.saveToFile("random_10000.nn");
+	//nn.saveToFile("random_1M.nn");
 
 	playGame(4);
 

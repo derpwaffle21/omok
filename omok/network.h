@@ -24,7 +24,7 @@ public:
 	Dense(int input, int output);
 
 	std::vector<double> forward(const std::vector<double>& input, double (*activation)(double)) const;
-	std::vector<double> backward(const std::vector<double>& delta, double (*activationDerivative)(double)) const;
+	std::vector<double> backward(const std::vector<double>& delta, const std::vector<double>& inputs, double (*activationDerivative)(double)) const;
 };
 
 class Network
