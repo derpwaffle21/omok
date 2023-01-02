@@ -3,8 +3,6 @@
 
 #include "search.h"
 
-Network baseNetwork("test.nn");
-
 // when BRD_LEN % 2 == 1
 std::vector<int> generateMoveSetByPos(const Board& _board, int color)
 {
@@ -68,7 +66,7 @@ std::vector<int> generateMoveSetByEval(Board& _board, int color)
 	return ms;
 }
 
-std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, int color, int temp)
+std::pair<int, int> alphaBetaRoot(int depth, Board& _board, Network& net, SearchInfo& info, int color, int temp, bool output)
 {
 	ASSERT(_board.state == BoardState::UNF);
 	int bestMove = -1;
@@ -87,18 +85,24 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, in
 		_board.makeMove(idx);
 		info.lastMove = idx;
 
+		int changeByTemp = randomInt(temp * 2) - temp;
 		int score;
 		if (color == BLACK)
-			score = -alphaBeta(-beta, -alpha, depth, _board, info, WHITE, 1, temp);
+			score = -alphaBeta(-beta, -alpha, depth, _board, net, info, WHITE, 1);
 		else
-			score = -alphaBeta(-beta, -alpha, depth, _board, info, BLACK, 1, temp);
+			score = -alphaBeta(-beta, -alpha, depth, _board, net, info, BLACK, 1);
+
+		//score += changeByTemp;
 
 		_board.undoMove();
 
 		if (score > alpha)
 		{
-			std::pair<int, int> p = idxToCoord(idx);
-			std::cout << "move: (" << p.first << ", " << p.second << "), score: " << score << std::endl;
+			if (output)
+			{
+				std::pair<int, int> p = idxToCoord(idx);
+				std::cout << "move: (" << p.first << ", " << p.second << "), score: " << score << std::endl;
+			}
 
 			alpha = score;
 			bestMove = idx;
@@ -108,24 +112,22 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, SearchInfo& info, in
 	return std::make_pair(bestMove, alpha);
 }
 
-int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& info, int color, int depth, int temp)
+int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, Network& net, SearchInfo& info, int color, int depth)
 {
 	if (_board.state != BoardState::UNF)
 	{
 		if (color == BLACK)
-			return evaluate(_board, baseNetwork);		// MAX_EVAL * 10000 causes an overflow
+			return evaluate(_board, net);		// MAX_EVAL * 10000 causes an overflow
 		else
-			return -evaluate(_board, baseNetwork);
+			return -evaluate(_board, net);
 	}
 
 	if (searchDepth == depth)
 	{
-		int changeByTemp = randomInt(temp * 2) - temp;
-
 		if (color == BLACK)
-			return (evaluate(_board, baseNetwork) * 10000) + changeByTemp;
+			return (evaluate(_board, net) * 10000);
 		else
-			return -(evaluate(_board, baseNetwork) * 10000) + changeByTemp;
+			return -(evaluate(_board, net) * 10000);
 	}
 
 	std::vector<int> moveSet = generateMoveSetByEval(_board, color);
@@ -142,9 +144,9 @@ int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, SearchInfo& i
 
 		int score;
 		if (color == BLACK)
-			score = -alphaBeta(-beta, -alpha, searchDepth, _board, info, WHITE, depth + 1, temp);
+			score = -alphaBeta(-beta, -alpha, searchDepth, _board, net, info, WHITE, depth + 1);
 		else
-			score = -alphaBeta(-beta, -alpha, searchDepth, _board, info, BLACK, depth + 1, temp);
+			score = -alphaBeta(-beta, -alpha, searchDepth, _board, net, info, BLACK, depth + 1);
 
 		_board.undoMove();
 

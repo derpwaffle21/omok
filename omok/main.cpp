@@ -6,7 +6,7 @@
 #include "search.h"
 #include "network.h"
 
-void playGame(int depth)
+void playGame(int depth, Network& net)
 {
 	Board b;
 	int playerColor, engineColor, ply = 0;
@@ -77,16 +77,15 @@ void playGame(int depth)
 		{
 			SearchInfo info;
 			info.nodes = 0;
-			info.lastMove = lastMove;
 
-			std::pair<int, int> searchResult = alphaBetaRoot(depth, b, info, engineColor);
+			std::pair<int, int> searchResult = alphaBetaRoot(depth, b, net, info, engineColor);
 			int bestMove = searchResult.first;
 			int score = searchResult.second;
 
 			b.makeMove(bestMove);
 			std::pair<int, int> coord = idxToCoord(bestMove);
 			std::cout << "depth: " << depth << std::endl;
-			std::cout << "move (" << coord.second << ", " << coord.first << ")" << std::endl;
+			std::cout << "move (" << coord.first << ", " << coord.second << ")" << std::endl;
 
 			if (abs((double)score / 100) > 100)
 			{
@@ -135,7 +134,7 @@ int main(void)
 	}*/
 
 	
-	Network nn("test.nn");
+	Network nn(6, 2);
 	Board board;
 	
 	board.makeMove(coordToIdx(std::make_pair(7, 7)));
@@ -166,22 +165,27 @@ int main(void)
 	std::cout << prob.size() << std::endl;
 	std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
 
+	for (int i = 0; i < 100; i++)
+	{
+		Board b;
+		SearchInfo info;
+		
+		std::pair<int, int> coord = idxToCoord(alphaBetaRoot(3, b, nn, info, BLACK, 5, false).first);
+
+		std::cout << coord.first << ", " << coord.second << std::endl;
+	}
 
 	bool train = false;
-
-	//double prevCB, prevCW, prevDB
 
 	if (train)
 	{
 		Board board;
 		std::cout << std::fixed;
 
-		for (int i = 0; i < 10000; i++)
+		for (int i = 0; i < 20000; i++)
 		{
 			if (i % 1000 == 0)
 			{
-				//ASSERT(abs(nn.conv.bias))
-
 				std::cout << "game: " << i << std::endl;
 				std::cout << "conv bias: " << nn.conv.bias << std::endl;
 				std::cout << "conv weight: " << nn.conv.weight[0][0] << std::endl;
@@ -191,25 +195,17 @@ int main(void)
 			generateRandomGame(board);
 
 			std::vector<double> target(3);
-			//board.printBoard(false);
 
 			target[(int)board.state] = 1;
 
-			/*
-			for (auto& it : target)
-				std::cout << it << ' ';
-			std::cout << std::endl;*/
-
-			//nn.backPropagate(board.get2DVector(), board.getHist().size(), target, Sigmoid, SigmoidDerivative, 0.01);
-
-			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.0005);
+			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.00005);
 			board.clear();
 		}
 	}
 
-	//nn.saveToFile("test.nn");
+	//nn.saveToFile("random_20000.nn");
 
-	playGame(4);
+	//playGame(4, nn);
 
 	return 0;
 }
