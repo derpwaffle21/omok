@@ -80,11 +80,6 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
             board.clear();
         }
 
-        for (int j = 0; j < batch.size(); j++)
-        {
-            std::cout << batch[j].first.second << std::endl;
-        }
-
         // shuffle the batch so that the net doesn't lean towards the result of the most recent games
         shuffleVector(batch);
 
