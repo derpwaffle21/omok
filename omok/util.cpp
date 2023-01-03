@@ -70,7 +70,7 @@ std::string doubleToString(double x)
     std::ostringstream stream;
 
     stream << std::fixed;
-    stream << std::setprecision(12);
+    stream << std::setprecision(10);
     stream << x;
 
     return stream.str();
