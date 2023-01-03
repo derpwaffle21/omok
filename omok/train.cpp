@@ -40,6 +40,7 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
     {
         Board board;
         std::vector<int> results(3);
+        double endPosError = 0;
         
         // batch.first.first = 2d vector of board, batch.first.second = length of the game(used to adjust lr)
         // batch.second.first = target(result of the game), batch.second.second = moveNum
@@ -60,18 +61,22 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
                 batch.push_back(std::make_pair(std::make_pair(board.get2DVector(), 0), std::make_pair(std::vector<double>(3), board.getHist().size())));
             }
 
+            std::vector<double> target(3);
+            target[(int)board.state] = 1;
+            endPosError += CrossEntropyError(target, Softmax(net.evaluate(board, activation)));
+
             results[(int)board.state]++;
 
             // set the result, length of the game
             // when there are 4 moves played, there are 4 + 1(empty board, starting position) positions to label
-            for (int j = batch.size() - (board.getHist().size() + 1); j < batch.size(); j++)
+            for (int j = (int)(batch.size() - (board.getHist().size() + 1)); j < batch.size(); j++)
             {
-                batch[j].first.second = board.getHist().size(); // length
+                batch[j].first.second = (int)board.getHist().size(); // length
                 batch[j].second.first[(int)board.state] = 1;    // result
             }
 
             // print the training game every 5 games
-            if (j % 5 == 0)
+            if (j % 10 == 0)
             {
                 std::cout << "game " << j << " of batch " << i << " completed." << std::endl;
                 board.printBoard(true);
@@ -114,6 +119,7 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
         std::vector<double> prob = Softmax(out);
 
         std::cout << "Empty board: Black win: " << prob[0] * 100 << "%, Draw: " << prob[1] * 100 << "%, White win: " << prob[2] * 100 << "%." << std::endl;
-        std::cout << "Average Error: " << crossEntropyErrorSum / batch.size() << std::endl;
+        std::cout << "Average Position Error: " << crossEntropyErrorSum / batch.size() << std::endl;
+        std::cout << "Average End Position Error: " << endPosError / batchSize << std::endl;
     }
 }

@@ -120,15 +120,15 @@ void playGame(int depth, Network& net)
 
 int main(void)
 {
-	Network nn("t1_77.nn");
+	Network nn("t1_96.nn");
 
 	//nn.saveToFile("50.nn");
 
 	//playGame(5, nn);
 
-	for (int i = 78; i < 150; i++)
+	for (int i = 97; i < 150; i++)
 	{
-		trainNetwork(nn, 2, 30, 1, 512, Sigmoid, SigmoidDerivative, 0.003);
+		trainNetwork(nn, 2, 30, 1, 512, Sigmoid, SigmoidDerivative, 0.001);
 
 		nn.saveToFile("t1_" + std::to_string(i) + ".nn");
 	}
