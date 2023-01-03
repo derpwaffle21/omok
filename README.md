@@ -9,4 +9,4 @@ network architecture:
 2 dense layers
 1 output layer with 3 nodes(black, draw, white)
 
-TODO: network를 파일에 저장할 때 저 정확하게 weight, bias 
+TODO: network를 파일에 저장할 때 더 정확하게 weight, bias 저장하기
