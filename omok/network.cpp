@@ -7,12 +7,58 @@ Convolutional::Convolutional()
 {
 	bias = 0;
 	size = 0;
+
+	dB = 0;
 }
 
 Convolutional::Convolutional(int _size) : size(_size)
 {
 	weight = std::vector<std::vector<double>>(size, std::vector<double>(size));
+	dW = std::vector<std::vector<double>>(size, std::vector<double>(size));
+
 	bias = 0;
+	dB = 0;
+}
+
+std::vector<double> Convolutional::forward(const std::vector<std::vector<int>>& input, double(*activation)(double)) const
+{
+	int inputSize = input.size();
+	int cnnLen = inputSize - size + 1;
+
+	std::vector<double> output(cnnLen * cnnLen);
+
+	for (int y = 0; y < cnnLen; y++)
+	{
+		for (int x = 0; x < cnnLen; x++)
+		{
+			double filterOutput = 0;
+
+			for (int cy = 0; cy < size; cy++)
+				for (int cx = 0; cx < size; cx++)
+					filterOutput += (input[y + cy][x + cx] * weight[cy][cx]);
+
+			filterOutput += bias;
+
+			output[y * cnnLen + x] = activation(filterOutput);
+		}
+	}
+
+	return output;
+}
+
+void Convolutional::update()
+{
+	for (int cy = 0; cy < size; cy++)
+	{
+		for (int cx = 0; cx < size; cx++)
+		{
+			weight[cy][cx] += dW[cy][cx];
+			dW[cy][cx] = 0;
+		}
+	}
+
+	bias += dB;
+	dB = 0;
 }
 
 Dense::Dense()
@@ -25,6 +71,9 @@ Dense::Dense(int input, int output) : inputSize(input), outputSize(output)
 {
 	weight = std::vector<std::vector<double>>(inputSize, std::vector<double>(outputSize));
 	bias   = std::vector<double>(outputSize);
+
+	dW = std::vector<std::vector<double>>(inputSize, std::vector<double>(outputSize));
+	dB = std::vector<double>(outputSize);
 }
 
 std::vector<double> Dense::forward(const std::vector<double>& input, double (*activation)(double)) const
@@ -39,15 +88,13 @@ std::vector<double> Dense::forward(const std::vector<double>& input, double (*ac
 			out[i] += input[j] * weight[j][i];
 
 		out[i] += bias[i];
-	}
-
-	for (int i = 0; i < outputSize; i++)
 		out[i] = activation(out[i]);
+	}
 
 	return out;
 }
 
-std::vector<double> Dense::backward(const std::vector<double>& delta, const std::vector<double>& inputs, double(*activationDerivative)(double)) const
+std::vector<double> Dense::backward(const std::vector<double>& delta, const std::vector<double>& inputs, double(*activationDerivative)(double), double lr)
 {
 	ASSERT(delta.size() == outputSize);
 	ASSERT(inputs.size() == inputSize);
@@ -56,13 +103,39 @@ std::vector<double> Dense::backward(const std::vector<double>& delta, const std:
 
 	for (int i = 0; i < inputSize; i++)
 	{
-		for (int j = 0; j < delta.size(); j++)	// delta.size() == outputSize
+		for (int j = 0; j < outputSize; j++)	// delta.size() == outputSize
 			nextDelta[i] += (delta[j] * weight[i][j]);
 
 		nextDelta[i] *= activationDerivative(inputs[i]);
 	}
 
+	for (int output = 0; output < outputSize; output++)	// delta.size() == outputSize
+	{
+		for (int input = 0; input < inputSize; input++)
+		{
+			double gradient = inputs[input] * delta[output];
+			dW[input][output] -= (lr * gradient);
+		}
+
+		dB[output] -= (lr * delta[output]);
+	}
+
 	return nextDelta;
+}
+
+void Dense::update()
+{
+	for (int output = 0; output < outputSize; output++)
+	{
+		for (int input = 0; input < inputSize; input++)
+		{
+			weight[input][output] += dW[input][output];
+			dW[input][output] = 0;
+		}
+
+		bias[output] += dB[output];
+		dB[output] = 0;
+	}
 }
 
 Network::Network(int _convFilterSize, int _denseNum) : convFilterSize(_convFilterSize), denseNum(_denseNum)
@@ -208,23 +281,9 @@ std::vector<double> Network::evaluate(const Board& board, double (*activation)(d
 std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board, int moveNum, double (*activation)(double)) const
 {
 	std::vector<double> out;
-	int cnnLen = BRD_LEN - convFilterSize + 1;
 
 	// conv
-	for (int y = 0; y < cnnLen; y++)
-	{
-		for (int x = 0; x < cnnLen; x++)
-		{
-			double filterOutput = 0;
-
-			for (int cy = 0; cy < convFilterSize; cy++)
-				for (int cx = 0; cx < convFilterSize; cx++)
-					filterOutput += (board[y + cy][x + cx] * conv.weight[cy][cx]);
-
-			filterOutput += conv.bias;
-			out.push_back(activation(filterOutput));
-		}
-	}
+	out = conv.forward(board, activation);
 
 	out.push_back(moveNum);
 	
@@ -258,20 +317,7 @@ void Network::backPropagate(const std::vector<std::vector<int>>& initialInput, i
 	int cnnLen = BRD_LEN - convFilterSize + 1;
 
 	//same as evalutate
-	for (int y = 0; y < cnnLen; y++)
-	{
-		for (int x = 0; x < cnnLen; x++)
-		{
-			double filterOutput = 0;
-
-			for (int cy = 0; cy < convFilterSize; cy++)
-				for (int cx = 0; cx < convFilterSize; cx++)
-					filterOutput += (initialInput[y + cy][x + cx] * conv.weight[cy][cx]);
-
-			filterOutput += conv.bias;
-			denseInput[0].push_back(activation(filterOutput));
-		}
-	}
+	denseInput[0] = conv.forward(initialInput, activation);
 
 	denseInput[0].push_back(moveNum);
 	
@@ -292,7 +338,7 @@ void Network::backPropagate(const std::vector<std::vector<int>>& initialInput, i
 
 	ASSERT(prob.size() == 3);
 
-	// (1 + denseNum) deltas for two 65 node layers and the output layer
+	// (1 + denseNum) deltas for two 66 node layers and the output layer
 	std::vector<std::vector<double>> delta(1 + denseNum, std::vector<double>());
 
 	// for output layer
@@ -303,29 +349,14 @@ void Network::backPropagate(const std::vector<std::vector<int>>& initialInput, i
 		delta[denseNum][i] = (prob[i] - target[i]);
 
 	for (int i = denseNum - 1; i >= 0; i--)
-		delta[i] = dense[i].backward(delta[i + 1], denseInput[i], activationDerivative);
+		delta[i] = dense[i].backward(delta[i + 1], denseInput[i], activationDerivative, lr);
 
 	delta[0].pop_back();		// no use for delta of sideToMove
 	delta[0].pop_back();		// same for moveNum
 
 	ASSERT(delta[0].size() == (cnnLen * cnnLen));
-
-	// use delta[1] ~ delta[denseNum], denseInput to update weights and bias of dense layers
-	for (int i = denseNum - 1; i >= 0; i--)
-	{
-		for (int output = 0; output < dense[i].outputSize; output++)
-		{
-			for (int input = 0; input < dense[i].inputSize; input++)
-			{
-				double gradient = denseInput[i][input] * delta[i + 1][output];
-				dense[i].weight[input][output] -= (lr * gradient);
-			}
-
-			dense[i].bias[output] -= (lr * delta[i + 1][output]);
-		}
-	}
 	
-	// use delta[0], initialInput(board) to update weights and bias of CNN
+	// use delta[0], initialInput(board) to update dW and dB of CNN
 	for (int cy = 0; cy < convFilterSize; cy++)
 	{
 		for (int cx = 0; cx < convFilterSize; cx++)
@@ -336,11 +367,19 @@ void Network::backPropagate(const std::vector<std::vector<int>>& initialInput, i
 				for (int x = 0; x < cnnLen; x++)
 					gradient += (initialInput[y + cy][x + cx] * delta[0][y * cnnLen + x]);
 
-			conv.weight[cy][cx] -= (lr * gradient);
+			conv.dW[cy][cx] -= (lr * gradient);
 		}
 	}
 
-	conv.bias -= (lr * sum(delta[0]));
+	conv.dB -= (lr * sum(delta[0]));
+}
+
+void Network::update()
+{
+	conv.update();
+
+	for (int i = 0; i < denseNum; i++)
+		dense[i].update();
 }
 
 void Network::trainGame(const Board& finishedBoard, double (*activation)(double), double(*activationDerivative)(double), double lr)

@@ -6,15 +6,26 @@ class Convolutional
 {
 public:
 	int size;
+
 	std::vector<std::vector<double>> weight;
 	double bias;
 
+	std::vector<std::vector<double>> dW;
+	double dB;
+
 	Convolutional();
 	Convolutional(int _size);
+
+	std::vector<double> forward(const std::vector<std::vector<int>>& input, double (*activation)(double)) const;
+	void update();
 };
 
 class Dense
 {
+private:
+	std::vector<std::vector<double>> dW;
+	std::vector<double> dB;
+
 public:
 	int inputSize, outputSize;
 	std::vector<std::vector<double>> weight;
@@ -24,7 +35,8 @@ public:
 	Dense(int input, int output);
 
 	std::vector<double> forward(const std::vector<double>& input, double (*activation)(double)) const;
-	std::vector<double> backward(const std::vector<double>& delta, const std::vector<double>& inputs, double (*activationDerivative)(double)) const;
+	std::vector<double> backward(const std::vector<double>& delta, const std::vector<double>& inputs, double (*activationDerivative)(double), double lr);
+	void update();
 };
 
 class Network
@@ -50,5 +62,6 @@ public:
 	void backPropagate(const std::vector<std::vector<int>>& initialInput, int moveNum, const std::vector<double>& target,
 		double (*activation)(double), double(*activationDerivative)(double), double lr);
 
+	void update();
 	void trainGame(const Board& finishedBoard, double (*activation)(double), double(*activationDerivative)(double), double lr);
 };
