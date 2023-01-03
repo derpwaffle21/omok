@@ -126,7 +126,7 @@ int main(void)
 
 	for (int i = 97; i < 150; i++)
 	{
-		trainNetwork(nn, 2, 30, 1, 512, Sigmoid, SigmoidDerivative, 0.001);
+		trainNetwork(nn, 2, 30, 1, 512, Sigmoid, SigmoidDerivative, 0.001, 10);
 
 		nn.saveToFile("t1_" + std::to_string(i) + ".nn");
 	}

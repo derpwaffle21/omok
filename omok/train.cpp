@@ -34,7 +34,7 @@ void generateRandomGame(Board& board, bool printBoard)
 }
 
 void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSize,
-    double (*activation)(double), double(*activationDerivative)(double), double lr)
+    double (*activation)(double), double(*activationDerivative)(double), double lr, int printCycle)
 {
     for (int i = 0; i < iteration; i++)
     {
@@ -75,8 +75,8 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
                 batch[j].second.first[(int)board.state] = 1;    // result
             }
 
-            // print the training game every 5 games
-            if (j % 10 == 0)
+            // print the training game every <printCycle> games
+            if (j % printCycle == 0)
             {
                 std::cout << "game " << j << " of batch " << i << " completed." << std::endl;
                 board.printBoard(true);
