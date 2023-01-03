@@ -1,5 +1,4 @@
 #include <fstream>
-#include <iostream>
 
 #include "network.h"
 #include "util.h"
@@ -178,9 +177,9 @@ void Network::saveToFile(std::string fileName) const
 
 	for (int cy = 0; cy < convFilterSize; cy++)
 		for (int cx = 0; cx < convFilterSize; cx++)
-			str += (std::to_string(conv.weight[cy][cx]) + " ");
+			str += (doubleToString(conv.weight[cy][cx]) + " ");
 
-	str += std::to_string(conv.bias);
+	str += doubleToString(conv.bias);
 	str += "\n";
 
 	//dense layer(s)
@@ -191,9 +190,9 @@ void Network::saveToFile(std::string fileName) const
 			str += ("d " + std::to_string(layer) + " " + std::to_string(output) + " ");	// d + <layer> + <output_idx>
 			
 			for (int input = 1; input <= dense[layer - 1].inputSize; input++)
-				str += (std::to_string(dense[layer - 1].weight[input - 1][output - 1]) + " ");
+				str += (doubleToString(dense[layer - 1].weight[input - 1][output - 1]) + " ");
 
-			str += std::to_string(dense[layer - 1].bias[output - 1]);
+			str += doubleToString(dense[layer - 1].bias[output - 1]);
 			str += "\n";
 		}
 	}

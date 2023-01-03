@@ -39,12 +39,12 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
     for (int i = 0; i < iteration; i++)
     {
         Board board;
-        // batch.first = 2d vector of board, batch.second.first = target(result of the game), batch.second.second = moveNum
-        std::vector<std::pair<std::vector<std::vector<int>>, std::pair<std::vector<double>, int>>> batch;
+        // batch.first.first = 2d vector of board, batch.second.first = target(result of the game), batch.second.second = moveNum
+        std::vector<std::pair<std::pair<std::vector<std::vector<int>>, int>, std::pair<std::vector<double>, int>>> batch;
 
         for (int j = 0; j < batchSize; j++)
         {
-            batch.push_back(std::make_pair(board.get2DVector(), std::make_pair(std::vector<double>(3), 0)));
+            batch.push_back(std::make_pair(std::make_pair(board.get2DVector(), 0), std::make_pair(std::vector<double>(3), 0)));
 
             while (board.state == BoardState::UNF)
             {
@@ -54,27 +54,45 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
                 int moveIdx = moveInfo.first;
 
                 board.makeMove(moveIdx);
-                batch.push_back(std::make_pair(board.get2DVector(), std::make_pair(std::vector<double>(3), board.getHist().size())));
+                batch.push_back(std::make_pair(std::make_pair(board.get2DVector(), 0), std::make_pair(std::vector<double>(3), board.getHist().size())));
             }
 
             std::cout << "game " << j << " of batch " << i << " completed." << std::endl;
 
-            // set the result of the game
-            for (int j = batch.size() - board.getHist().size(); j < batch.size(); j++)
-                batch[j].second.first[(int)board.state] = 1;
+            // set the result, length of the game
+            for (int j = batch.size() - board.getHist().size() - 1; j < batch.size(); j++)
+            {
+                batch[j].first.second = board.getHist().size(); // length
+                batch[j].second.first[(int)board.state] = 1;    // result
+            }
 
             // print the training game every 10 games
             if (j % 10 == 0)
+            {
                 board.printBoard(true);
 
+                std::vector<double> prob = Softmax(net.evaluate(board, activation));
+
+                std::cout << "Eval of the final position: " <<
+                    "Black win : " << prob[0] * 100 << "%, Draw : " << prob[1] * 100 << "%, White win : " << prob[2] * 100 << " %." << std::endl;
+            }
+
             board.clear();
+        }
+
+        for (int j = 0; j < batch.size(); j++)
+        {
+            std::cout << batch[j].first.second << std::endl;
         }
 
         // shuffle the batch so that the net doesn't lean towards the result of the most recent games
         shuffleVector(batch);
 
         for (int j = 0; j < batch.size(); j++)
-            net.backPropagate(batch[j].first, batch[j].second.second, batch[j].second.first, activation, activationDerivative, lr);
+        {
+            // divide the lr by the gameLen so all games get a equal contribution to the net, long or short
+            net.backPropagate(batch[j].first.first, batch[j].second.second, batch[j].second.first, activation, activationDerivative, lr / batch[j].first.second);
+        }
 
         std::cout << "net training for batch " << i << " completed" << std::endl;
 

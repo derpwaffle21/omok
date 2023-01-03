@@ -36,6 +36,7 @@ bool outOfBounds(int idx);
 
 void saveGameToFile(const Board& board, std::string fileName);
 void saveStringToFile(const std::string& gameString, std::string fileName);
+std::string doubleToString(double x);
 
 template <typename T>
 void shuffleVector(std::vector<T>&v)

@@ -3,6 +3,8 @@
 #include <fstream>
 #include <random>
 #include <algorithm>
+#include <sstream>
+#include <iomanip>
 
 #include "util.h"
 #include "types.h"
@@ -61,6 +63,17 @@ void saveStringToFile(const std::string& gameString, std::string fileName)
 
     fout << gameString;
     fout.close();
+}
+
+std::string doubleToString(double x)
+{
+    std::ostringstream stream;
+
+    stream << std::fixed;
+    stream << std::setprecision(12);
+    stream << x;
+
+    return stream.str();
 }
 
 void shuffleVector(std::vector<int>& v)
