@@ -39,6 +39,8 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
     for (int i = 0; i < iteration; i++)
     {
         Board board;
+        std::vector<int> results(3);
+
         // batch.first.first = 2d vector of board, batch.second.first = target(result of the game), batch.second.second = moveNum
         std::vector<std::pair<std::pair<std::vector<std::vector<int>>, int>, std::pair<std::vector<double>, int>>> batch;
 
@@ -58,6 +60,7 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
             }
 
             std::cout << "game " << j << " of batch " << i << " completed." << std::endl;
+            results[(int)board.state]++;
 
             // set the result, length of the game
             // when there are 4 moves played, there are 4 + 1(empty board, starting position) positions to label
@@ -89,6 +92,10 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
             // divide the lr by the gameLen so all games get a equal contribution to the net, long or short
             net.backPropagate(batch[j].first.first, batch[j].second.second, batch[j].second.first, activation, activationDerivative, lr / batch[j].first.second);
         }
+
+        ASSERT(results[0] + results[1] + results[2] == batchSize);
+
+        std::cout << batchSize << " games, " << results[0] << " Black wins, " << results[1] << " Draws, " << results[2] << " White wins." << std::endl;
 
         std::cout << "net training for batch " << i << " completed" << std::endl;
 
