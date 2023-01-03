@@ -85,14 +85,11 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, Network& net, Search
 		_board.makeMove(idx);
 		info.lastMove = idx;
 
-		int changeByTemp = randomInt(temp * 2) - temp;
 		int score;
 		if (color == BLACK)
-			score = -alphaBeta(-beta, -alpha, depth, _board, net, info, WHITE, 1);
+			score = -alphaBeta(-beta, -alpha, depth, _board, net, info, WHITE, 1, temp);
 		else
-			score = -alphaBeta(-beta, -alpha, depth, _board, net, info, BLACK, 1);
-
-		//score += changeByTemp;
+			score = -alphaBeta(-beta, -alpha, depth, _board, net, info, BLACK, 1, temp);
 
 		_board.undoMove();
 
@@ -112,7 +109,7 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, Network& net, Search
 	return std::make_pair(bestMove, alpha);
 }
 
-int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, Network& net, SearchInfo& info, int color, int depth)
+int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, Network& net, SearchInfo& info, int color, int depth, int temp)
 {
 	if (_board.state != BoardState::UNF)
 	{
@@ -124,10 +121,20 @@ int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, Network& net,
 
 	if (searchDepth == depth)
 	{
+		int eval;
+
 		if (color == BLACK)
-			return (evaluate(_board, net) * 10000);
+			eval = evaluate(_board, net) * 10000;
 		else
-			return -(evaluate(_board, net) * 10000);
+			eval = -(evaluate(_board, net) * 10000);
+
+		if (temp != 0)
+		{
+			int changeByTemp = randomInt(temp * 2) - temp;
+			eval += changeByTemp;
+		}
+
+		return eval;
 	}
 
 	std::vector<int> moveSet = generateMoveSetByEval(_board, color);
@@ -144,9 +151,9 @@ int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, Network& net,
 
 		int score;
 		if (color == BLACK)
-			score = -alphaBeta(-beta, -alpha, searchDepth, _board, net, info, WHITE, depth + 1);
+			score = -alphaBeta(-beta, -alpha, searchDepth, _board, net, info, WHITE, depth + 1, temp);
 		else
-			score = -alphaBeta(-beta, -alpha, searchDepth, _board, net, info, BLACK, depth + 1);
+			score = -alphaBeta(-beta, -alpha, searchDepth, _board, net, info, BLACK, depth + 1, temp);
 
 		_board.undoMove();
 

@@ -23,6 +23,10 @@ exit(1); \
 }
 #endif
 
+extern std::mt19937 rng;
+extern std::normal_distribution<double> normalDist;
+extern std::uniform_int_distribution<long long> uniformDist;
+
 double normalDistributionRandom();
 int randomInt(int range);
 
@@ -32,9 +36,13 @@ bool outOfBounds(int idx);
 
 void saveGameToFile(const Board& board, std::string fileName);
 void saveStringToFile(const std::string& gameString, std::string fileName);
-void generateRandomGame(Board& board, bool printBoard = false);
 
-void shuffleVector(std::vector<int>& v);
+template <typename T>
+void shuffleVector(std::vector<T>&v)
+{
+    std::shuffle(v.begin(), v.end(), rng);
+}
+
 double sum(const std::vector<double>& v);
 
 double Linear(double x);

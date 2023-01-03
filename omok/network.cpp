@@ -133,7 +133,7 @@ void Network::initMemory(int _convFilterSize, int _denseNum)
 {
 	conv = Convolutional(_convFilterSize);
 	dense = std::vector<Dense>(_denseNum);
-	int denseSize = (BRD_LEN - _convFilterSize + 1) * (BRD_LEN - _convFilterSize + 1) + 1;		// CNN output + moveNum
+	int denseSize = (BRD_LEN - _convFilterSize + 1) * (BRD_LEN - _convFilterSize + 1) + 1 + 1;		// CNN output + moveNum + sideToMove
 
 	for (int i = 0; i < _denseNum - 1; i++)
 		dense[i] = Dense(denseSize, denseSize);
@@ -228,6 +228,13 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 	}
 
 	out.push_back(moveNum);
+	
+	// side to move
+	if (moveNum % 2 == 0)	// BLACK
+		out.push_back(1);
+	else					// WHITE
+		out.push_back(-1);
+
 	ASSERT(out.size() == dense[0].inputSize);
 
 	// dense
@@ -237,6 +244,8 @@ std::vector<double> Network::evaluate(const std::vector<std::vector<int>>& board
 
 	// no activation function for last layer
 	out = dense[denseNum - 1].forward(out, Linear);
+
+	ASSERT(out.size() == 3);
 
 	return out;
 }
@@ -266,6 +275,12 @@ void Network::backPropagate(const std::vector<std::vector<int>>& initialInput, i
 	}
 
 	denseInput[0].push_back(moveNum);
+	
+	// side to move
+	if (moveNum % 2 == 0)	// BLACK
+		denseInput[0].push_back(1);
+	else					// WHITE
+		denseInput[0].push_back(-1);
 
 	for (int i = 0; i < denseNum - 1; i++)
 		denseInput[i + 1] = dense[i].forward(denseInput[i], activation);
@@ -291,7 +306,10 @@ void Network::backPropagate(const std::vector<std::vector<int>>& initialInput, i
 	for (int i = denseNum - 1; i >= 0; i--)
 		delta[i] = dense[i].backward(delta[i + 1], denseInput[i], activationDerivative);
 
-	delta[0].pop_back();		// no use for delta of moveNum (delta[0][64])
+	delta[0].pop_back();		// no use for delta of sideToMove
+	delta[0].pop_back();		// same for moveNum
+
+	ASSERT(delta[0].size() == (cnnLen * cnnLen));
 
 	// use delta[1] ~ delta[denseNum], denseInput to update weights and bias of dense layers
 	for (int i = denseNum - 1; i >= 0; i--)

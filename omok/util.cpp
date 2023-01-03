@@ -8,7 +8,7 @@
 #include "types.h"
 #include "board.h"
 
-std::mt19937 rng = std::mt19937(std::random_device{}());;
+std::mt19937 rng = std::mt19937(std::random_device{}());
 std::normal_distribution<double> normalDist(0, 1);
 std::uniform_int_distribution<long long> uniformDist(0, LONG_INF);
 
@@ -63,36 +63,12 @@ void saveStringToFile(const std::string& gameString, std::string fileName)
     fout.close();
 }
 
-void generateRandomGame(Board& board, bool printBoard)
+void shuffleVector(std::vector<int>& v)
 {
-    std::vector<int> availableMoves;
-
-    for (int idx = 0; idx < BRD_SQ_NUM; idx++)
-    {
-        if (!outOfBounds(idx))
-            availableMoves.push_back(idx);
-    }
-
-    shuffleVector(availableMoves);
-
-    for (auto& idx : availableMoves)
-    {
-        board.makeMove(idx);
-
-        if (board.state != BoardState::UNF)
-        {
-            if (printBoard)
-                board.printBoard(true);
-
-            break;
-        }
-
-        if (printBoard)
-            board.printBoard(true);
-    }
+    std::shuffle(v.begin(), v.end(), rng);
 }
 
-void shuffleVector(std::vector<int>& v)
+void shuffleVector(std::vector<Board>& v)
 {
     std::shuffle(v.begin(), v.end(), rng);
 }

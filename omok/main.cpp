@@ -5,6 +5,7 @@
 #include "board.h"
 #include "search.h"
 #include "network.h"
+#include "train.h"
 
 void playGame(int depth, Network& net)
 {
@@ -78,7 +79,7 @@ void playGame(int depth, Network& net)
 			SearchInfo info;
 			info.nodes = 0;
 
-			std::pair<int, int> searchResult = alphaBetaRoot(depth, b, net, info, engineColor);
+			std::pair<int, int> searchResult = alphaBetaRoot(depth, b, net, info, engineColor, 0);
 			int bestMove = searchResult.first;
 			int score = searchResult.second;
 
@@ -133,79 +134,14 @@ int main(void)
 		str += std::string(b);
 	}*/
 
-	
 	Network nn(6, 2);
-	Board board;
-	
-	board.makeMove(coordToIdx(std::make_pair(7, 7)));
-	
-	std::vector<double> output;
-	output = nn.evaluate(board.get2DVector(), board.getHist().size(), Sigmoid);
-
-	std::cout << output.size() << std::endl;
-	std::cout << "eval: " << output[0] << ", " << output[1] << ", " << output[2] << std::endl;
-
-	std::vector<double> prob = Softmax(output);
-
-	std::cout << prob.size() << std::endl;
-	std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
-
-	board.makeMove(coordToIdx(std::make_pair(7, 8)));
-	//board.makeMove(coordToIdx(std::make_pair(7, 6)));
-	//board.makeMove(coordToIdx(std::make_pair(6, 7)));
-
-
-	output = nn.evaluate(board.get2DVector(), board.getHist().size(), Sigmoid);
-
-	std::cout << output.size() << std::endl;
-	std::cout << "eval: " << output[0] << ", " << output[1] << ", " << output[2] << std::endl;
-
-	prob = Softmax(output);
-
-	std::cout << prob.size() << std::endl;
-	std::cout << "prob: " << prob[0] * 100 << "% Black win, " << prob[1] * 100 << "% Draw, " << prob[2] * 100 << "% White win" << std::endl;
 
 	for (int i = 0; i < 100; i++)
 	{
-		Board b;
-		SearchInfo info;
-		
-		std::pair<int, int> coord = idxToCoord(alphaBetaRoot(3, b, nn, info, BLACK, 5, false).first);
+		trainNetwork(nn, 2, 50, 1, 256, Sigmoid, SigmoidDerivative, 0.0002);
 
-		std::cout << coord.first << ", " << coord.second << std::endl;
+		nn.saveToFile("t1_" + std::to_string(i) + ".nn");
 	}
-
-	bool train = false;
-
-	if (train)
-	{
-		Board board;
-		std::cout << std::fixed;
-
-		for (int i = 0; i < 20000; i++)
-		{
-			if (i % 1000 == 0)
-			{
-				std::cout << "game: " << i << std::endl;
-				std::cout << "conv bias: " << nn.conv.bias << std::endl;
-				std::cout << "conv weight: " << nn.conv.weight[0][0] << std::endl;
-				std::cout << "dense bias: " << nn.dense[0].bias[0] << std::endl;
-			}
-
-			generateRandomGame(board);
-
-			std::vector<double> target(3);
-
-			target[(int)board.state] = 1;
-
-			nn.trainGame(board, Sigmoid, SigmoidDerivative, 0.00005);
-			board.clear();
-		}
-	}
-
-	//nn.saveToFile("random_20000.nn");
-
-	//playGame(4, nn);
 
 	return 0;
 }
