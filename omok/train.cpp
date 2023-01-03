@@ -40,9 +40,9 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
     {
         Board board;
         std::vector<int> results(3);
-        double crossEntropyErrorSum = 0;
-
-        // batch.first.first = 2d vector of board, batch.second.first = target(result of the game), batch.second.second = moveNum
+        
+        // batch.first.first = 2d vector of board, batch.first.second = length of the game(used to adjust lr)
+        // batch.second.first = target(result of the game), batch.second.second = moveNum
         std::vector<std::pair<std::pair<std::vector<std::vector<int>>, int>, std::pair<std::vector<double>, int>>> batch;
 
         for (int j = 0; j < batchSize; j++)
@@ -60,13 +60,7 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
                 batch.push_back(std::make_pair(std::make_pair(board.get2DVector(), 0), std::make_pair(std::vector<double>(3), board.getHist().size())));
             }
 
-            std::vector<double> prob = Softmax(net.evaluate(board, activation));
-            std::vector<double> target(3);
-
-            target[(int)board.state] = 1;
-
             results[(int)board.state]++;
-            crossEntropyErrorSum += CrossEntropyError(target, prob);
 
             // set the result, length of the game
             // when there are 4 moves played, there are 4 + 1(empty board, starting position) positions to label
@@ -82,11 +76,22 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
                 std::cout << "game " << j << " of batch " << i << " completed." << std::endl;
                 board.printBoard(true);
 
+                std::vector<double> prob = Softmax(net.evaluate(board, activation));
+
                 std::cout << "Eval of the final position: " <<
                     "Black win : " << prob[0] * 100 << "%, Draw : " << prob[1] * 100 << "%, White win : " << prob[2] * 100 << "%." << std::endl;
             }
 
             board.clear();
+        }
+
+        double crossEntropyErrorSum = 0;
+
+        for (int j = 0; j < batch.size(); j++)
+        {
+            std::vector<double> prob = Softmax(net.evaluate(batch[j].first.first, batch[j].second.second, activation));
+
+            crossEntropyErrorSum += CrossEntropyError(batch[j].second.first, prob);
         }
 
         // shuffle the batch so that the net doesn't lean towards the result of the most recent games
@@ -95,7 +100,8 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
         for (int j = 0; j < batch.size(); j++)
         {
             // divide the lr by the gameLen so all games get a equal contribution to the net, long or short
-            net.backPropagate(batch[j].first.first, batch[j].second.second, batch[j].second.first, activation, activationDerivative, lr / batch[j].first.second);
+            net.backPropagate(batch[j].first.first, batch[j].second.second, batch[j].second.first,
+                activation, activationDerivative, lr / batch[j].first.second);
         }
 
         ASSERT(results[0] + results[1] + results[2] == batchSize);
@@ -108,6 +114,6 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
         std::vector<double> prob = Softmax(out);
 
         std::cout << "Empty board: Black win: " << prob[0] * 100 << "%, Draw: " << prob[1] * 100 << "%, White win: " << prob[2] * 100 << "%." << std::endl;
-        std::cout << "Average Error: " << crossEntropyErrorSum / batchSize << std::endl;
+        std::cout << "Average Error: " << crossEntropyErrorSum / batch.size() << std::endl;
     }
 }
