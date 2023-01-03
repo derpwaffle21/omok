@@ -124,8 +124,6 @@ int main(void)
 
 	//nn.saveToFile("50.nn");
 
-	//playGame(5, nn);
-
 	for (int i = 97; i < 150; i++)
 	{
 		trainNetwork(nn, 2, 30, 1, 512, Sigmoid, SigmoidDerivative, 0.001);

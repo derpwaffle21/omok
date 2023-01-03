@@ -84,7 +84,7 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
                 std::vector<double> prob = Softmax(net.evaluate(board, activation));
 
                 std::cout << "Eval of the final position: " <<
-                    "Black win : " << prob[0] * 100 << "%, Draw : " << prob[1] * 100 << "%, White win : " << prob[2] * 100 << "%." << std::endl;
+                    "Black win : " << prob[0] * 100 << "%, Draw : " << prob[1] * 100 << "%, White win : " << prob[2] * 100 << "%." << std::endl << std::endl;
             }
 
             board.clear();
@@ -111,6 +111,7 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
 
         ASSERT(results[0] + results[1] + results[2] == batchSize);
 
+        std::cout << std::endl;
         std::cout << batchSize << " games, " << results[0] << " Black wins, " << results[1] << " Draws, " << results[2] << " White wins." << std::endl;
 
         std::cout << "net training for batch " << i << " completed" << std::endl;
