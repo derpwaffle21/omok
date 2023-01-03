@@ -59,7 +59,6 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
                 batch.push_back(std::make_pair(std::make_pair(board.get2DVector(), 0), std::make_pair(std::vector<double>(3), board.getHist().size())));
             }
 
-            std::cout << "game " << j << " of batch " << i << " completed." << std::endl;
             results[(int)board.state]++;
 
             // set the result, length of the game
@@ -73,6 +72,7 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
             // print the training game every 10 games
             if (j % 10 == 0)
             {
+                std::cout << "game " << j << " of batch " << i << " completed." << std::endl;
                 board.printBoard(true);
 
                 std::vector<double> prob = Softmax(net.evaluate(board, activation));
