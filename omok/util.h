@@ -6,7 +6,7 @@
 
 #include "board.h"
 
-#define DEBUG
+//#define DEBUG
 
 #ifndef DEBUG
 #define ASSERT(n)
