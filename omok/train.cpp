@@ -60,7 +60,8 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
             std::cout << "game " << j << " of batch " << i << " completed." << std::endl;
 
             // set the result, length of the game
-            for (int j = batch.size() - board.getHist().size() - 1; j < batch.size(); j++)
+            // when there are 4 moves played, there are 4 + 1(empty board, starting position) positions to label
+            for (int j = batch.size() - (board.getHist().size() + 1); j < batch.size(); j++)
             {
                 batch[j].first.second = board.getHist().size(); // length
                 batch[j].second.first[(int)board.state] = 1;    // result
