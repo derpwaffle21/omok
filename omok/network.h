@@ -57,6 +57,6 @@ public:
 	void backPropagate(const std::vector<std::vector<int>>& initialInput, int moveNum, const std::vector<double>& target,
 		double (*activation)(double), double(*activationDerivative)(double), double lr);
 
-	void update(int batchSize);
+	void update(int batchSize, double momentum);
 	void trainGame(const Board& finishedBoard, double (*activation)(double), double(*activationDerivative)(double), double lr);
 };

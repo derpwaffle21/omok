@@ -6,6 +6,7 @@
 #include "search.h"
 #include "network.h"
 #include "train.h"
+#include "test.h"
 
 void playGame(int depth, Network& net)
 {
@@ -120,17 +121,16 @@ void playGame(int depth, Network& net)
 
 int main(void)
 {
-	Network nn("t2_48.nn");
-
-	//playGame(5, nn);
+	Network nn("t3_179.nn");
+	//playGame(4, nn);
 
 	//nn.saveToFile("50.nn");
 
-	for (int i = 49; i < 250; i++)
+	for (int i = 180; i < 600; i++)
 	{
-		trainNetwork(nn, 2, 30, 3, 128, Sigmoid, SigmoidDerivative, 0.2, 8);
+		trainNetwork(nn, 2, 300, 5, 64, Sigmoid, SigmoidDerivative, 0.4, 16, 10);
 
-		nn.saveToFile("t2_" + std::to_string(i) + ".nn");
+		nn.saveToFile("t3_" + std::to_string(i) + ".nn");
 	}
 
 	return 0;

@@ -66,7 +66,7 @@ std::vector<int> generateMoveSetByEval(Board& _board, int color)
 	return ms;
 }
 
-std::pair<int, int> alphaBetaRoot(int depth, Board& _board, Network& net, SearchInfo& info, int color, int temp, bool output)
+std::pair<int, int> alphaBetaRoot(int depth, Board& _board, const Network& net, SearchInfo& info, int color, int temp, bool output)
 {
 	ASSERT(_board.state == BoardState::UNF);
 	int bestMove = -1;
@@ -109,7 +109,7 @@ std::pair<int, int> alphaBetaRoot(int depth, Board& _board, Network& net, Search
 	return std::make_pair(bestMove, alpha);
 }
 
-int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, Network& net, SearchInfo& info, int color, int depth, int temp)
+int alphaBeta(int alpha, int beta, int searchDepth, Board& _board, const Network& net, SearchInfo& info, int color, int depth, int temp)
 {
 	if (_board.state != BoardState::UNF)
 	{

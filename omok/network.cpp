@@ -356,8 +356,10 @@ void Network::backPropagate(const std::vector<std::vector<int>>& initialInput, i
 	conv.dB -= (lr * sum(delta[0]));
 }
 
-void Network::update(int batchSize)
+void Network::update(int batchSize, double momentum)
 {
+	ASSERT(momentum < 1);
+
 	for (int i = denseNum - 1; i >= 0; i--)
 	{
 		for (int output = 0; output < dense[i].outputSize; output++)
@@ -365,11 +367,11 @@ void Network::update(int batchSize)
 			for (int input = 0; input < dense[i].inputSize; input++)
 			{
 				dense[i].weight[input][output] -= (denseGradient[i][input][output] / batchSize);
-				denseGradient[i][input][output] = 0;
+				denseGradient[i][input][output] *= momentum;
 			}
 
 			dense[i].bias[output] += (dense[i].dB[output] / batchSize);
-			dense[i].dB[output] = 0;
+			dense[i].dB[output] *= momentum;
 		}
 	}
 
@@ -378,12 +380,12 @@ void Network::update(int batchSize)
 		for (int cx = 0; cx < convFilterSize; cx++)
 		{
 			conv.weight[cy][cx] -= (convGradient[cy][cx] / batchSize);
-			convGradient[cy][cx] = 0;
+			convGradient[cy][cx] *= momentum;
 		}
 	}
 
 	conv.bias += (conv.dB / batchSize);
-	conv.dB = 0;
+	conv.dB *= momentum;
 }
 
 void Network::trainGame(const Board& finishedBoard, double (*activation)(double), double(*activationDerivative)(double), double lr)

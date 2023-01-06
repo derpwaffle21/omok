@@ -3,6 +3,7 @@
 #include "train.h"
 #include "util.h"
 #include "search.h"
+#include "test.h"
 
 void generateRandomGame(Board& board, bool printBoard)
 {
@@ -34,8 +35,10 @@ void generateRandomGame(Board& board, bool printBoard)
 }
 
 void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSize,
-    double (*activation)(double), double(*activationDerivative)(double), double lr, int printCycle)
+    double (*activation)(double), double(*activationDerivative)(double), double lr, int printCycle, int testNum)
 {
+    Network oldNet(net);
+
     for (int i = 0; i < iteration; i++)
     {
         Board board;
@@ -107,7 +110,7 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
                 activation, activationDerivative, lr / batch[j].first.second);
         }
 
-        net.update(batch.size());
+        net.update(batch.size(), 0.4);
 
         ASSERT(results[0] + results[1] + results[2] == batchSize);
 
@@ -123,4 +126,6 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
         std::cout << "Average Position Error: " << crossEntropyErrorSum / batch.size() << std::endl;
         std::cout << "Average End Position Error: " << endPosError / batchSize << std::endl;
     }
+
+    testNet(net, oldNet, testNum, depth, 30);
 }
