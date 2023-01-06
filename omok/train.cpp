@@ -46,7 +46,7 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
         // batch.second.first = target(result of the game), batch.second.second = moveNum
         std::vector<std::pair<std::pair<std::vector<std::vector<int>>, int>, std::pair<std::vector<double>, int>>> batch;
 
-        for (int j = 0; j < batchSize; j++)
+        for (int j = 1; j <= batchSize; j++)
         {
             batch.push_back(std::make_pair(std::make_pair(board.get2DVector(), 0), std::make_pair(std::vector<double>(3), 0)));
 
@@ -70,10 +70,10 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
 
             // set the result, length of the game
             // when there are 4 moves played, there are 4 + 1(empty board, starting position) positions to label
-            for (int j = (int)(batch.size() - (board.getHist().size() + 1)); j < batch.size(); j++)
+            for (int k = (int)(batch.size() - (board.getHist().size() + 1)); k < batch.size(); k++)
             {
-                batch[j].first.second = (int)board.getHist().size(); // length
-                batch[j].second.first[(int)board.state] = 1;    // result
+                batch[k].first.second = (int)board.getHist().size(); // length
+                batch[k].second.first[(int)board.state] = 1;    // result
             }
 
             // print the training game every <printCycle> games
@@ -99,9 +99,6 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
 
             crossEntropyErrorSum += CrossEntropyError(batch[j].second.first, prob);
         }
-
-        // shuffle the batch so that the net doesn't lean towards the result of the most recent games
-        shuffleVector(batch);
 
         for (int j = 0; j < batch.size(); j++)
         {

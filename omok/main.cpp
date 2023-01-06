@@ -120,13 +120,13 @@ void playGame(int depth, Network& net)
 
 int main(void)
 {
-	Network nn("t2_41.nn");
+	Network nn("t2_48.nn");
 
 	//playGame(5, nn);
 
 	//nn.saveToFile("50.nn");
 
-	for (int i = 42; i < 250; i++)
+	for (int i = 49; i < 250; i++)
 	{
 		trainNetwork(nn, 2, 30, 3, 128, Sigmoid, SigmoidDerivative, 0.2, 8);
 
