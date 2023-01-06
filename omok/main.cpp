@@ -121,14 +121,14 @@ void playGame(int depth, Network& net)
 
 int main(void)
 {
-	Network nn("t3_179.nn");
+	Network nn("t3_180.nn");
 	//playGame(4, nn);
 
 	//nn.saveToFile("50.nn");
 
-	for (int i = 180; i < 600; i++)
+	for (int i = 181; i < 600; i++)
 	{
-		trainNetwork(nn, 2, 300, 5, 64, Sigmoid, SigmoidDerivative, 0.4, 16, 10);
+		trainNetwork(nn, 2, 300, 5, 64, Sigmoid, SigmoidDerivative, 0.4, 16, 20);
 
 		nn.saveToFile("t3_" + std::to_string(i) + ".nn");
 	}

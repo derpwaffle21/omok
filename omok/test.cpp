@@ -51,7 +51,7 @@ void testNet(const Network& newNet, const Network& oldNet, int gameNum, int dept
 
 	int newWin = 0, oldWin = 0, draw = 0;
 
-	for (int game = 1; game < gameNum; game++)
+	for (int game = 1; game <= gameNum; game++)
 	{
 		BoardState result;
 		int newColor = game % 2;
