@@ -8,7 +8,7 @@ public:
 	int size;
 
 	std::vector<std::vector<double>> weight;
-	double bias;
+	double bias, dB;
 
 	Convolutional();
 	Convolutional(int _size);
@@ -22,6 +22,7 @@ public:
 	int inputSize, outputSize;
 	std::vector<std::vector<double>> weight;
 	std::vector<double> bias;
+	std::vector<double> dB;
 
 	Dense();
 	Dense(int input, int output);
@@ -39,6 +40,9 @@ public:
 	Convolutional conv;
 	std::vector<Dense> dense;
 
+	std::vector<std::vector<double>> convGradient;
+	std::vector<std::vector<std::vector<double>>> denseGradient;
+
 	void initMemory(int _convFilterSize, int _denseNum);
 	void randomize();
 
@@ -53,5 +57,6 @@ public:
 	void backPropagate(const std::vector<std::vector<int>>& initialInput, int moveNum, const std::vector<double>& target,
 		double (*activation)(double), double(*activationDerivative)(double), double lr);
 
+	void update(int batchSize);
 	void trainGame(const Board& finishedBoard, double (*activation)(double), double(*activationDerivative)(double), double lr);
 };

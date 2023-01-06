@@ -58,7 +58,8 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
                 int moveIdx = moveInfo.first;
 
                 board.makeMove(moveIdx);
-                batch.push_back(std::make_pair(std::make_pair(board.get2DVector(), 0), std::make_pair(std::vector<double>(3), board.getHist().size())));
+                batch.push_back(std::make_pair(std::make_pair(board.get2DVector(), 0),
+                                std::make_pair(std::vector<double>(3), board.getHist().size())));
             }
 
             std::vector<double> target(3);
@@ -108,6 +109,8 @@ void trainNetwork(Network& net, int depth, int temp, int iteration, int batchSiz
             net.backPropagate(batch[j].first.first, batch[j].second.second, batch[j].second.first,
                 activation, activationDerivative, lr / batch[j].first.second);
         }
+
+        net.update(batch.size());
 
         ASSERT(results[0] + results[1] + results[2] == batchSize);
 
